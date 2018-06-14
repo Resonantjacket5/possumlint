@@ -7,8 +7,21 @@ function print(text){
 
 const parser = require('../parse.js').parser
 
-print('Run tests')
+print('Run tests:\n---- ---- ----')
 
-var sourceFile = fs.readFileSync('test/simple1','utf8');
-print(sourceFile)
-var output = parser.parse(sourceFile)
+// https://github.com/jenkinsci/pipeline-examples/tree/master/declarative-examples/simple-examples
+
+var files = [
+    'test/simple1',
+    'test/simple2',
+    'test/simple3',
+]
+
+
+for (file of files) {
+    print(file)
+    print("---- ---- ----")
+    let sourceFile = fs.readFileSync(file,'utf8');
+    print(sourceFile)
+    let output = parser.parse(sourceFile)
+}
