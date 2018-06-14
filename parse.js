@@ -29,7 +29,10 @@ var grammer = {
       // ["[{ASCII}][{ALNUM}]*","print(yytext);return 'ID'"],
       // ["[_|$|ASCII][ALNUM]*","return 'ID'"],
       ["[0-9][0-9]+", "return 'NUM';"],
-      ["\\\(","print('paren found ');return '('"],
+
+      [";", "return ';'"],
+
+      ["\\\(","return '('"],
       ["\\\)","return ')'"],
       ["\\\{","return '{'"],
       ["\\\}","return '}'"],
@@ -41,6 +44,13 @@ var grammer = {
     ]
   },
   "bnf": {
+    "STATEMENTS": [
+      "STATEMENTS ; STATEMENT",
+      "STATEMENT",
+    ],
+    "STATEMENT": [
+      "EXP"
+    ],
     "EXP": [
       "FUNC_EXP",
       "NUM",
@@ -54,6 +64,8 @@ var grammer = {
 
 var parser = new Parser(grammer);
 
+// module.exports.add = (a,b) => a+b
+module.exports.parser = parser
 var parserSource = parser.generate();
 
 // var output = parser.parse("1 2 3");
