@@ -54,10 +54,12 @@ var grammer = {
     "EXP": [
       "FUNC_EXP",
       "NUM",
+      "STRING",
     ],
     "FUNC_EXP": [
-      "ID { EXP }",
-      "ID ( EXP )"
+      "ID { STATEMENTS }",
+      "ID ( EXP )",
+      "ID ( )"
     ],
   }
 }
@@ -76,6 +78,6 @@ var parserSource = parser.generate();
 
 parser.parse("13");
 parser.parse("one ( 13 )");
-var sourceFile = fs.readFileSync('test/simple1','utf8');
+var sourceFile = fs.readFileSync('test/simple2','utf8');
 print(sourceFile);
 var output = parser.parse(sourceFile)
