@@ -1,0 +1,23 @@
+pipeline {
+  agent {
+    node {
+      label('string')
+    }
+  }
+  options {
+    timestamps(1 )
+    time2( )
+  }
+  stages{
+    stage {
+      one()
+    }
+    stage('first') {
+      three()
+    }
+    stage('second')
+    stage('third') {
+      four()
+    }
+  }
+}

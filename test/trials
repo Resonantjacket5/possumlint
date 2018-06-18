@@ -1,0 +1,40 @@
+
+{
+    one ( ) // insert semicolon
+
+    two ()
+
+
+    pipeline ()
+    two()
+
+
+    three() {
+
+    } // semicolon here
+
+    four () // no semicolon
+    {
+
+    }
+
+    send message // add semicolon here?
+    read message
+
+
+}
+
+// save last token on newlines and line number
+// rule? if ID comes after closing ) or } then add semicolon before ID ?
+
+// rule add semicolon also if ID precedes other ID
+
+    ID
+    ID
+    ID ( )
+    ID
+    ID ( ) {
+
+    }
+    ID
+    

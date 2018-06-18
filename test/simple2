@@ -4,6 +4,7 @@ pipeline {
       label('string')
     }
   };
+
   options {
     timestamps()
   }

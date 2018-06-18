@@ -1,3 +1,4 @@
 item {
   second( 123 )
+  third ()
 }

@@ -5,7 +5,8 @@
   "main": "parse.js",
   "dependencies": {},
   "devDependencies": {
-    "jison": "^0.4.18"
+    "jison": "^0.4.18",
+    "tape": "^4.9.1"
   },
   "scripts": {
     "test": "node test/test.js"

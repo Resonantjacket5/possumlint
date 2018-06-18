@@ -1,7 +1,7 @@
 pipeline {
   agent {
     // executes on an executor with the label 'some-label' or 'docker'
-    label "some-label || docker"
+    label "some-label || docker";
   };
 
   stages {
@@ -20,7 +20,7 @@ pipeline {
     stage("bar") {
       steps{
         echo "bar: ${env.bar}";
-        echo "foo: ${foo.imageName()}"
+        echo "foo: ${foo.imageName()}";
       }
     }
   }
