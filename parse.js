@@ -157,12 +157,6 @@ bark.ASTFuncExp = ASTFuncExp
 bark.ASTStatement = ASTStatement
 bark.ASTStatements = ASTStatements
 
-// r = (token) => {
-//   print(this.yyloc)
-//   print(this.parser.lexer.pastInput())
-//   return token
-// }
-
 //print token function
 pt = function (token,yylloc) {
   console.log(`<${token}> ln:${yylloc.first_line} col:${yylloc.first_column}`)
@@ -263,15 +257,11 @@ var grammer = {
 parser = new Parser(grammer);
 bark.parser = parser
 print(parser.lexer)
-//print(parser.lexer._currentRules())
 
 
 bark.parser.lexer.lex = function lex () {
   // r is rule number matched
   var r = this.next();
-  //console.log('r: '+r+' '+this.yylineno)
-  // console.log(this.yylineno)
-
   bark.monitor.addRuleMatched(r)
   if (r) {
       return r;
@@ -283,17 +273,3 @@ bark.parser.lexer.lex = function lex () {
 // module.exports.add = (a,b) => a+b
 module.exports.parser = parser
 var parserSource = parser.generate();
-
-// var output = parser.parse("1 2 3");
-// console.log(output)
-
-// output = parser.parse("1 2 3");
-// console.log(output);
-
-//parser.parse("13");
-//parser.parse("one ( 13 )");
-//let output = parser.parse("asdf (123); read(123); third(3213); four(4)");
-//print(output)
-// var sourceFile = fs.readFileSync('test/simple3b','utf8');
-// print(sourceFile);
-// var output = parser.parse(sourceFile)
