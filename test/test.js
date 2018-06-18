@@ -6,6 +6,8 @@ function print(text){
 }
 
 const parser = require('../parse.js').parser
+// refactor monitor to be part of main
+const monitor = require('../parse.js').monitor
 
 print('Run tests:\n--------------')
 
@@ -22,6 +24,7 @@ var files = [
 
 
 for (file of files) {
+    monitor.reset()
     print(file)
     print("--------------")
     let sourceFile = fs.readFileSync(file,'utf8');

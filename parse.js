@@ -13,6 +13,7 @@
 
 fs = require("fs");
 var Parser = require("jison").Parser;
+var JisonLex = require("jison-lex");
 
 
 print = function (text) {
@@ -27,30 +28,29 @@ bark = {}
 
 class Monitor {
   constructor() {
-    this.lastSymbol = false
+    this.symbols = []
+  }
+
+  reset() {
     this.symbols = []
   }
 
   // return true if previous line number not same
   // as curLineNumber and last token was } or )
   shouldSemiColon(yylloc) {
-    /*if (this.lastSymbol === false) {
-      print('incorrect last symbol ')
-      return false
-    }*/
     if (yylloc.first_line === yylloc.last_line) {
-      print('same line')
+      //print('same line')
       return false
     }
     let lastVal = this.symbols[this.symbols.length-1]
     if(lastVal ===12 || lastVal === 14 || lastVal === 16) {
       // Both different line and correct symbol
       //console.log(`Added semicolon at ln:${yylloc.last_line} col${yylloc.last_column}`)
-      console.log(`Matched: ${lastVal}`)
-      console.log(`Added semicolon at ln:${yylloc.first_line} col:${yylloc.first_column}`)
+      //console.log(`Matched: ${lastVal}`)
+      //console.log(`Added semicolon at ln:${yylloc.first_line} col:${yylloc.first_column}`)
       return true
     }
-    print('wrong rule '+lastVal)
+    //print('wrong rule '+lastVal)
     return false
   }
 
@@ -163,7 +163,7 @@ pt = function (token,yylloc) {
 }
 
 
-var grammer = {
+var grammar = {
   "lex" :{
     "macros": {
       "ASCII": "a-zA-Z", //1
@@ -190,17 +190,17 @@ var grammer = {
       // [['MULTI_COMMENT'],"\\*/","this.popState()"],
 
 
-      ["[a-zA-Z][a-zA-Z0-9]*","print('<id>: '+yytext+' '+yylloc.first_line);return 'ID'"], // 12
+      ["[a-zA-Z][a-zA-Z0-9]*","return 'ID'"], // 12
       // ["[{ASCII}][{ALNUM}]*","print(yytext);return 'ID'"],
       // ["[_|$|ASCII][ALNUM]*","return 'ID'"],
-      ["[1-9][0-9]*", "pt('NUM',yylloc);return 'NUM';"],
+      ["[1-9][0-9]*", "return 'NUM';"],
 
       [";", "return ';'"],
 
       ["\\\(","return '('"], 
-      ["\\\)","pt('(',yylloc);return ')'"], //14
+      ["\\\)","return ')'"], //14
       ["\\\{","return '{'"],
-      ["\\\}","pt('}',yylloc);return '}'"], //16
+      ["\\\}","return '}'"], //16
       // simplified return string
       [
         "\'.*\'",
@@ -218,14 +218,14 @@ var grammer = {
      //["STATEMENTS ; EOF"," return $1"],
     ],
     "STATEMENTS": [
-      ["STATEMENTS STATEMENT ;","print('statements');$$ = new bark.ASTStatements(@1,$3,$1)"],
+      ["STATEMENTS STATEMENT ;","$$ = new bark.ASTStatements(@1,$3,$1)"],
       ["STATEMENT ;","$$ = new bark.ASTStatements(@1,$1)"],
     ],
     // contains different kinda of expressions
     // but not all versions aka string wouldn't count
     "STATEMENT": [
       //"ID = EXP",
-      ["FUNC_EXP","print('staement');$$ = new bark.ASTStatement(@1,$1)"],
+      ["FUNC_EXP","$$ = new bark.ASTStatement(@1,$1)"],
     ],
     "EXP": [
       "FUNC_EXP",
@@ -254,12 +254,7 @@ var grammer = {
   }
 }
 
-parser = new Parser(grammer);
-bark.parser = parser
-print(parser.lexer)
-
-
-bark.parser.lexer.lex = function lex () {
+function lex () {
   // r is rule number matched
   var r = this.next();
   bark.monitor.addRuleMatched(r)
@@ -270,6 +265,36 @@ bark.parser.lexer.lex = function lex () {
   }
 }
 
-// module.exports.add = (a,b) => a+b
+/*
+var lexer = new JisonLex(grammar.lex)
+lexer.lex = lex
+lexer.setInput("one ( )\n")
+
+let tokens = []
+let token = lexer.lex()
+while(token !== 1) {
+  tokens.push(token)
+  token = lexer.lex()
+}
+print(tokens)
+/**/
+// while(token !== false) {
+//   tokens.push(token)
+//   //print(token)
+//   token = lexer.lex()
+// }
+//print(tokens)
+
+
+parser = new Parser(grammar)
+bark.parser = parser
+bark.parser.lexer.lex = lex
+
+
+
+
+//parser.parse("one ( )\n")
+
+// export parser out to other files
 module.exports.parser = parser
-var parserSource = parser.generate();
+module.exports.monitor = bark.monitor
