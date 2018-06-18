@@ -15,6 +15,9 @@ fs = require("fs");
 var Parser = require("jison").Parser;
 var JisonLex = require("jison-lex");
 
+// global so callable in jison's bnf
+bark = {}
+
 
 print = function (text) {
   // use process.stdout.write for linux
@@ -23,8 +26,6 @@ print = function (text) {
   console.log(text)
 }
 
-// global so callable in jison's bnf
-bark = {}
 
 class Monitor {
   constructor() {
@@ -254,10 +255,13 @@ var grammar = {
   }
 }
 
+// override built in lex in order to monitor
+//  rules so we can know when to insert semicolons
 function lex () {
   // r is rule number matched
   var r = this.next();
   bark.monitor.addRuleMatched(r)
+  //console.log(r)
   if (r) {
       return r;
   } else {
@@ -265,36 +269,46 @@ function lex () {
   }
 }
 
-/*
-var lexer = new JisonLex(grammar.lex)
+
+// deep clone grammar to prevent collisions with parser
+let lexGrammar = JSON.parse(JSON.stringify(grammar.lex));
+var lexer = new JisonLex(lexGrammar)//.lex)
 lexer.lex = lex
-lexer.setInput("one ( )\n")
 
-let tokens = []
-let token = lexer.lex()
-while(token !== 1) {
-  tokens.push(token)
-  token = lexer.lex()
+
+
+//lexer.setInput("one ( )\n")
+
+// Takes in text and returns array of tokens
+function lexus (text) {
+  this.setInput(text)
+  let tokens = []
+  let token = this.lex()
+  // iterate until no tokens left
+  while(token !== 1) {
+    tokens.push(token)
+    token = this.lex()
+  }
+  return tokens
 }
-print(tokens)
-/**/
-// while(token !== false) {
-//   tokens.push(token)
-//   //print(token)
-//   token = lexer.lex()
-// }
-//print(tokens)
-
+lexer.lexus = lexus
 
 parser = new Parser(grammar)
-bark.parser = parser
-bark.parser.lexer.lex = lex
+parser.lexer.lex = lex
 
+function main () {
 
+  let tokens = lexer.lexus("one ( )\n")
+  console.log(tokens)
 
+  bark.monitor.reset()
+  parser.parse("one ( );")
+}
 
-//parser.parse("one ( )\n")
+//main()
 
 // export parser out to other files
 module.exports.parser = parser
+module.exports.lexer = lexer
+// refactor monitor to be part of main
 module.exports.monitor = bark.monitor

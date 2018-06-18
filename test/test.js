@@ -1,15 +1,16 @@
 // const parser = require('../parse.js').parser
 
-function print(text){
+/*function print(text){
     process.stdout.write(text);
     process.stdout.write("\n");
-}
+}*/
 
 const parser = require('../parse.js').parser
-// refactor monitor to be part of main
+const lexer = require('../parse.js').lexer
 const monitor = require('../parse.js').monitor
 
-print('Run tests:\n--------------')
+
+console.log('Run tests:\n--------------')
 
 // https://github.com/jenkinsci/pipeline-examples/tree/master/declarative-examples/simple-examples
 
@@ -24,13 +25,18 @@ var files = [
 
 
 for (file of files) {
-    monitor.reset()
-    print(file)
-    print("--------------")
     let sourceFile = fs.readFileSync(file,'utf8');
-    print(sourceFile)
+    console.log(file)
+    console.log("--------------")
+    console.log(sourceFile)
+    monitor.reset()
+    let tokens = lexer.lexus(sourceFile)
+    console.log('Tokens:')
+    console.log(tokens)
+    monitor.reset()
+    
     let output = parser.parse(sourceFile)
     console.log(output)
 }
 
-print('Test:success')
+console.log('Test:success')
