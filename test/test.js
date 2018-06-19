@@ -20,7 +20,9 @@ var files = [
     'test/simple2',
     'test/simple2b',
     // slight regression
-    //'test/simple3',
+    'test/simple3',
+    'test/simple3b',
+    //'test/simple3c',
 ]
 
 

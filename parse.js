@@ -1,3 +1,14 @@
+// parse.js
+
+// import file to call the parsing
+
+fs = require("fs");
+var Parser = require("jison").Parser;
+var JisonLex = require("jison-lex");
+
+// global so callable in jison's bnf
+bark = {}
+
 //import Parser from 'jison';
 // http://zaa.ch/jison/docs/#usage-from-the-command-line
 // https://stackoverflow.com/questions/28638304/jison-grammar-definition-leads-to-wrong-token-recognition
@@ -11,12 +22,6 @@
 // example bnf
 // https://tc39.github.io/ecma262/
 
-fs = require("fs");
-var Parser = require("jison").Parser;
-var JisonLex = require("jison-lex");
-
-// global so callable in jison's bnf
-bark = {}
 
 
 print = function (text) {
@@ -44,7 +49,8 @@ class Monitor {
       return false
     }
     let lastVal = this.symbols[this.symbols.length-1]
-    if(lastVal ===12 || lastVal === 14 || lastVal === 16) {
+    // 11 is string
+    if(lastVal === 11| lastVal ===12 || lastVal === 14 || lastVal === 16) {
       // Both different line and correct symbol
       //console.log(`Added semicolon at ln:${yylloc.last_line} col${yylloc.last_column}`)
       //console.log(`Matched: ${lastVal}`)
@@ -261,7 +267,7 @@ function lex () {
   // r is rule number matched
   var r = this.next();
   bark.monitor.addRuleMatched(r)
-  //console.log(r)
+  // console.log(r)
   if (r) {
       return r;
   } else {
