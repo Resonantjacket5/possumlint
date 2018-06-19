@@ -4,7 +4,7 @@
     process.stdout.write(text);
     process.stdout.write("\n");
 }*/
-
+const fs = require("fs");
 const parser = require('../parse.js').parser
 const lexer = require('../parse.js').lexer
 const monitor = require('../parse.js').monitor

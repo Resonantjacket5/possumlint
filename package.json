@@ -5,12 +5,15 @@
   "main": "parse.js",
   "dependencies": {},
   "devDependencies": {
+    "eslint": "^4.19.1",
     "jison": "^0.4.18",
     "jison-lex": "^0.3.4",
     "tape": "^4.9.1"
   },
   "scripts": {
-    "test": "node test/test.js"
+    "describe": "echo 'Test by running test script, lint using eslint'",
+    "test": "node test/test.js",
+    "lint": "eslint . --ext .js"
   },
   "author": "Wesley Lin",
   "license": "ISC"

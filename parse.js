@@ -2,7 +2,7 @@
 
 // import file to call the parsing
 
-fs = require("fs");
+const fs = require("fs");
 var Parser = require("jison").Parser;
 var JisonLex = require("jison-lex");
 
@@ -82,6 +82,8 @@ class ASTPrinter {
   }
 }
 
+// instanceof will say if obj is class or in prototype chain
+
 class ASTNode {
   // symbol is type of terminal
   constructor(symbol, yylloc) {
@@ -110,8 +112,14 @@ class ASTTerminal extends ASTNode {
 }
 
 class ASTNumber extends ASTTerminal {
-  constructor(symbol, yylloc, yytext) {
-    super(symbol, yylloc, yytext)
+  constructor( yylloc, yytext) {
+    super('NUM', yylloc, yytext)
+  }
+}
+
+class ASTString extends ASTTerminal {
+  constructor( yylloc, yytext) {
+    super('STRING',yylloc, yytext)
   }
 }
 
@@ -236,7 +244,7 @@ var grammar = {
     ],
     "EXP": [
       "FUNC_EXP",
-      ["NUM","print('num exp'); $$ = new bark.ASTNumber('NUM',@1, yytext)"],
+      ["NUM","print('num exp'); $$ = new bark.ASTNumber(@1, yytext)"],
       "STRING",
     ],
     // "CALLER":[
@@ -304,14 +312,17 @@ parser.lexer.lex = lex
 
 function main () {
 
-  let tokens = lexer.lexus("one ( )\n")
+  jenkinsFile = "one ( 12 )\n"
+
+  let tokens = lexer.lexus(jenkinsFile)
   console.log(tokens)
 
   bark.monitor.reset()
-  parser.parse("one ( );")
+  let output = parser.parse(jenkinsFile)
+  console.log(output)
 }
 
-//main()
+main()
 
 // export parser out to other files
 module.exports.parser = parser
