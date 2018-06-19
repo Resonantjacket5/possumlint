@@ -2,12 +2,12 @@
 
 // import file to call the parsing
 
-const fs = require("fs");
+//const fs = require("fs");
 var Parser = require("jison").Parser;
 var JisonLex = require("jison-lex");
 
 // global so callable in jison's bnf
-bark = {}
+bark = {} 
 
 //import Parser from 'jison';
 // http://zaa.ch/jison/docs/#usage-from-the-command-line
@@ -24,12 +24,12 @@ bark = {}
 
 
 
-print = function (text) {
-  // use process.stdout.write for linux
-  //process.stdout.write(text);
-  //process.stdout.write("\n");
-  console.log(text)
-}
+// print = function (text) {
+//   // use process.stdout.write for linux
+//   //process.stdout.write(text);
+//   //process.stdout.write("\n");
+//   console.log(text)
+// }
 
 
 class Monitor {
@@ -45,7 +45,7 @@ class Monitor {
   // as curLineNumber and last token was } or )
   shouldSemiColon(yylloc) {
     if (yylloc.first_line === yylloc.last_line) {
-      //print('same line')
+      //console.log('same line')
       return false
     }
     let lastVal = this.symbols[this.symbols.length-1]
@@ -57,7 +57,7 @@ class Monitor {
       //console.log(`Added semicolon at ln:${yylloc.first_line} col:${yylloc.first_column}`)
       return true
     }
-    //print('wrong rule '+lastVal)
+    //console.log('wrong rule '+lastVal)
     return false
   }
 
@@ -194,9 +194,9 @@ var grammar = {
       ["[\\s]+","if(bark.monitor.shouldSemiColon(yylloc)) {return ';'; } // whitespace"], //8
       //print('whitespace');console.log(yylloc);console.log('semi '+bark.monitor.shouldSemiColon(yylloc))
       //["[ \\r\\t]+","/* skip whitespace */"],
-      //["\\n","print('newline '+yylloc.first_line);if(bark.monitor.shouldSemiColon(yylloc.first_line)){print('semicolon')} /*skip newlines   */"],
+      //["\\n","console.log('newline '+yylloc.first_line);if(bark.monitor.shouldSemiColon(yylloc.first_line)){console.log('semicolon')} /*skip newlines   */"],
       [['INITIAL'],"//","this.pushState('COMMENT')"],
-      [['COMMENT'],"[^\*\\n]","// eat comment in chunks"], // 
+      [['COMMENT'],"[^*\\n]","// eat comment in chunks"], // 
       [['COMMENT'],"\\n","this.popState()"], // 11
       // /\\*, /\*, /*
       // [['INITIAL'],"/\\*","this.pushState('MULTI_COMMENT')"],
@@ -206,16 +206,16 @@ var grammar = {
 
 
       ["[a-zA-Z][a-zA-Z0-9]*","return 'ID'"], // 12
-      // ["[{ASCII}][{ALNUM}]*","print(yytext);return 'ID'"],
+      // ["[{ASCII}][{ALNUM}]*","console.log(yytext);return 'ID'"],
       // ["[_|$|ASCII][ALNUM]*","return 'ID'"],
       ["[1-9][0-9]*", "return 'NUM';"],
 
       [";", "return ';'"],
 
-      ["\\\(","return '('"], 
-      ["\\\)","return ')'"], //14
-      ["\\\{","return '{'"],
-      ["\\\}","return '}'"], //16
+      ["\\(","return '('"], 
+      ["\\)","return ')'"], //14
+      ["\\{","return '{'"],
+      ["\\}","return '}'"], //16
       // simplified return string
       [
         "\'.*\'",
@@ -244,7 +244,7 @@ var grammar = {
     ],
     "EXP": [
       "FUNC_EXP",
-      ["NUM","print('num exp'); $$ = new bark.ASTNumber(@1, yytext)"],
+      ["NUM","console.log('num exp'); $$ = new bark.ASTNumber(@1, yytext)"],
       "STRING",
     ],
     // "CALLER":[
@@ -312,7 +312,7 @@ parser.lexer.lex = lex
 
 function main () {
 
-  jenkinsFile = "one ( 12 )\n"
+  let jenkinsFile = "one ( 12 )\n"
 
   let tokens = lexer.lexus(jenkinsFile)
   console.log(tokens)
