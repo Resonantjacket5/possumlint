@@ -22,6 +22,8 @@ bark = {}
 // example bnf
 // https://tc39.github.io/ecma262/
 
+// javascript functions
+// https://github.com/estree/estree/blob/master/es5.md
 
 
 // print = function (text) {
@@ -71,7 +73,6 @@ class Monitor {
 
 bark.monitor = new Monitor();
 
-
 class ASTPrinter {
   visit(node, action) {
     switch(node.symbol) {
@@ -100,7 +101,7 @@ class ASTNode {
   }
 }
 
-class ASTTerminal extends ASTNode {
+class ASTLiteral extends ASTNode {
   constructor(symbol, yylloc, yytext) {
     super(symbol,  yylloc)
     this.text = yytext
@@ -111,13 +112,13 @@ class ASTTerminal extends ASTNode {
   }
 }
 
-class ASTNumber extends ASTTerminal {
+class ASTNumber extends ASTLiteral {
   constructor( yylloc, yytext) {
     super('NUM', yylloc, yytext)
   }
 }
 
-class ASTString extends ASTTerminal {
+class ASTString extends ASTLiteral {
   constructor( yylloc, yytext) {
     super('STRING',yylloc, yytext)
   }
@@ -125,15 +126,15 @@ class ASTString extends ASTTerminal {
 
 class ASTExp extends ASTNode {
   constructor(yylloc, node) {
-    super('EXP',yyloc)
+    super('EXP',yylloc)
     this.node = node
   }
 }
 
-class ASTFuncExp extends ASTTerminal {
+class ASTFuncExp extends ASTNode {
   // argNode is optional
   constructor(yylloc, callerNode, argNode) {
-    super('EXP', yylloc)
+    super('FUNC_EXP', yylloc)
     this.callerNode = callerNode
     if (argNode !== undefined) {
       this.argNode = argNode
@@ -252,16 +253,19 @@ var grammar = {
     // ],
     // "MEMBER":[
     //   "ID"
-    // ],
+    // ],constructor(yylloc, callerNode, argNode)
     "FUNC_EXP": [
       // not sure if groovy closure ones should be separate or not
       "ID ( EXP ) { STATEMENTS }",
       "ID { STATEMENTS }",
       //["ID ( EXP )","$$ = new bark.ASTFuncExp(@1,$1,$3)"],
-      "ID ( EXP )",
+      ["ID ( EXP )","$$ = new bark.ASTFuncExp(@1, $1, $3)"],
       "ID EXP",
       "ID ( )",
     ],
+    // "ID":[
+    //   "ID"
+    // ]
     // https://tc39.github.io/ecma262/#sec-property-accessors
     // "ID":[
     //   "ID . ID"
@@ -288,9 +292,6 @@ function lex () {
 let lexGrammar = JSON.parse(JSON.stringify(grammar.lex));
 var lexer = new JisonLex(lexGrammar)//.lex)
 lexer.lex = lex
-
-
-
 //lexer.setInput("one ( )\n")
 
 // Takes in text and returns array of tokens
@@ -309,6 +310,7 @@ lexer.lexus = lexus
 
 parser = new Parser(grammar)
 parser.lexer.lex = lex
+parser.lexer.bark = bark
 
 function main () {
 
