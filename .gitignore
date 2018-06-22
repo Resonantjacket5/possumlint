@@ -1,3 +1,5 @@
+## Normal node gitignore
+
 # Logs
 logs
 *.log
@@ -65,3 +67,6 @@ typings/
 
 # Serverless directories
 .serverless
+
+## Typescript gitignore
+built/*
