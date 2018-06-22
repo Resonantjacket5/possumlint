@@ -7,3 +7,7 @@
 
 // readme information on how to create a typescript library for later
 https://www.tsmean.com/articles/how-to-write-a-typescript-library/
+
+
+// migrating from javascript to typescript
+https://www.typescriptlang.org/docs/handbook/migrating-from-javascript.html

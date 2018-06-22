@@ -5,9 +5,9 @@
     process.stdout.write("\n");
 }*/
 const fs = require("fs");
-const parser = require('../src/parse').parser
-const lexer = require('../src/parse').lexer
-const monitor = require('../src/parse').monitor
+const parser = require('../built/parse').parser
+const lexer = require('../built/parse').lexer
+const monitor = require('../built/parse').monitor
 
 
 console.log('Run tests:\n--------------')
