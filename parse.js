@@ -36,6 +36,8 @@ bark = {}
 
 class Monitor {
   constructor() {
+    this.terminals = false // {}
+    this.targetTokenNumbers = false // []
     this.symbols = []
   }
 
@@ -46,21 +48,34 @@ class Monitor {
   // return true if previous line number not same
   // as curLineNumber and last token was } or )
   shouldSemiColon(yylloc) {
+    if (this.terminals == false) {
+      throw new Error('terminals not set')
+    }
     if (yylloc.first_line === yylloc.last_line) {
       //console.log('same line')
       return false
     }
     let lastVal = this.symbols[this.symbols.length-1]
-    // 11 is string
-    if(lastVal === 11| lastVal ===12 || lastVal === 14 || lastVal === 16) {
-      // Both different line and correct symbol
-      //console.log(`Added semicolon at ln:${yylloc.last_line} col${yylloc.last_column}`)
-      //console.log(`Matched: ${lastVal}`)
-      //console.log(`Added semicolon at ln:${yylloc.first_line} col:${yylloc.first_column}`)
+    if (this.targetTokenNumbers.includes(String(lastVal)))  {
       return true
     }
-    //console.log('wrong rule '+lastVal)
     return false
+  }
+
+  // pass in dictionar of terminals
+  // terminals: hashmap<number,string>
+  setUpTerminals(terminals) {
+    this.terminals = terminals
+    this.targetTokenNumbers = []
+    let targetTerminals = ['ID','STRING',')','}']
+    // for each target terminal
+    //for (let targetTerminal of targetTerminals) {
+    for (let terminalNumber in terminals) {
+      let curTerminal = terminals[terminalNumber]
+      if (targetTerminals.includes(curTerminal)) {
+        this.targetTokenNumbers.push( terminalNumber)
+      }
+    }
   }
 
   addRuleMatched(rule) {
@@ -245,7 +260,8 @@ var grammar = {
     ],
     "EXP": [
       "FUNC_EXP",
-      ["NUM","console.log('num exp'); $$ = new bark.ASTNumber(@1, yytext)"],
+      // "LITERAL",
+      ["NUM"," $$ = new bark.ASTNumber(@1, yytext)"],
       "STRING",
     ],
     // "CALLER":[
@@ -263,6 +279,10 @@ var grammar = {
       "ID EXP",
       "ID ( )",
     ],
+    // "LITERAL":[
+    //   ["NUM","console.log('num exp'); $$ = new bark.ASTNumber(@1, yytext)"],
+    //   "STRING",
+    // ]
     // "ID":[
     //   "ID"
     // ]
@@ -278,20 +298,23 @@ var grammar = {
 function lex () {
   // r is rule number matched
   var r = this.next();
-  bark.monitor.addRuleMatched(r)
-  // console.log(r)
+  bark.monitor.addRuleMatched(r)  
   if (r) {
+      // console.log(r)
+      // if(r in parser.terminals_) {
+      //   let token = parser.terminals_[r]
+      //   console.log(token)
+      // }
       return r;
   } else {
       return this.lex();
   }
 }
 
-
 // deep clone grammar to prevent collisions with parser
 let lexGrammar = JSON.parse(JSON.stringify(grammar.lex));
 var lexer = new JisonLex(lexGrammar)//.lex)
-lexer.lex = lex
+// lexer.lex = lex
 //lexer.setInput("one ( )\n")
 
 // Takes in text and returns array of tokens
@@ -310,7 +333,9 @@ lexer.lexus = lexus
 
 parser = new Parser(grammar)
 parser.lexer.lex = lex
-parser.lexer.bark = bark
+bark.monitor.setUpTerminals(parser.terminals_)
+
+// Finished all Setup
 
 function main () {
 
@@ -322,6 +347,8 @@ function main () {
   bark.monitor.reset()
   let output = parser.parse(jenkinsFile)
   console.log(output)
+
+  console.log(parser.terminals_)
 }
 
 main()
