@@ -8,12 +8,14 @@
     "eslint": "^4.19.1",
     "jison": "^0.4.18",
     "jison-lex": "^0.3.4",
-    "tape": "^4.9.1"
+    "tape": "^4.9.1",
+    "typescript": "^2.9.2"
   },
   "scripts": {
     "describe": "echo 'Test by running test script, lint using eslint'",
     "test": "node test/test.js",
-    "lint": "eslint . --ext .js"
+    "lint": "eslint . --ext .js",
+    "tsc": "bash ./node_modules/typescript/bin/tsc"
   },
   "author": "Wesley Lin",
   "license": "ISC"

@@ -348,7 +348,7 @@ function main () {
   let output = parser.parse(jenkinsFile)
   console.log(output)
 
-  console.log(parser.terminals_)
+  // console.log(parser.terminals_)
 }
 
 main()
