@@ -28,13 +28,13 @@ class ASTLiteral extends ASTNode {
 }
 
 export class ASTNumber extends ASTLiteral {
-  constructor( yylloc, yytext) {
+  constructor(yylloc:any, yytext:string) {
     super('NUM', yylloc, yytext)
   }
 }
 
 export class ASTString extends ASTLiteral {
-  constructor( yylloc, yytext) {
+  constructor(yylloc:any, yytext:string) {
     super('STRING',yylloc, yytext)
   }
 }
@@ -67,7 +67,7 @@ export class ASTAssignExp extends ASTBranch {
 export class ASTFuncExp extends ASTNode {
   callerNode:any
   argNode:any
-  constructor(yylloc, callerNode, argNode) {
+  constructor(yylloc:any, callerNode:any, argNode:any) {
     super('FUNC_EXP', yylloc)
     if (argNode !== undefined) {
       this.argNode = argNode
@@ -90,7 +90,7 @@ export class ASTStatements extends ASTNode {
   // statements is optional
   statement:ASTStatement
   statements:ASTStatements
-  constructor(yyloc, statement:ASTStatement, statements:ASTStatements) {
+  constructor(yyloc:any, statement:ASTStatement, statements:ASTStatements) {
     super('STATEMENTS',yyloc)
     if (statements !== undefined) {
       this.statements = statements
@@ -102,7 +102,7 @@ export class ASTStatements extends ASTNode {
 
 
 class ASTPrinter {
-  visit(node, action) {
+  visit(node:any, action:Function) {
     switch(node.symbol) {
       case 'STATEMENTS': {
         action(node)
