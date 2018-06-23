@@ -38,8 +38,9 @@ global.bark = {};
 
 
 class Monitor {
-  terminals: Array<number> = []
-  targetTokenNumbers: Array<number> = []
+  // terminals: hashmap<number,string>
+  terminals: any = []
+  targetTokenNumbers: Array<string> = []
   symbols: Array<number> = []
   constructor() {}
 
@@ -66,7 +67,7 @@ class Monitor {
 
   // pass in dictionar of terminals
   // terminals: hashmap<number,string>
-  setUpTerminals(terminals) {
+  setUpTerminals(terminals:any) {
     this.terminals = terminals
     this.targetTokenNumbers = []
     let targetTerminals = ['ID','STRING',')','}']
@@ -108,7 +109,7 @@ class ASTNode {
   line: number
   column: number
 
-  constructor(symbol, yylloc) {
+  constructor(symbol:string, yylloc:any) {
     this.line = yylloc.first_line
     this.column = yylloc.first_column
   }
@@ -121,7 +122,7 @@ class ASTNode {
 // Abstract Syntax Tree Literals (or Terminals)
 class ASTLiteral extends ASTNode {
   text: string
-  constructor(symbol, yylloc, yytext) {
+  constructor(symbol:string, yylloc:any, yytext:string) {
     super(symbol,  yylloc)
     this.text = yytext
   }
@@ -148,14 +149,14 @@ class ASTBranch extends ASTNode {
 
   nodes:Array<ASTNode> = []
 
-  constructor(symbol, yylloc) {
+  constructor(symbol:string, yylloc:any) {
     super(symbol, yylloc)
   }
 }
 class ASTExp extends ASTNode {
-  constructor(yylloc, node) {
+  node:ASTNode
+  constructor(yylloc:any, node:ASTNode) {
     super('EXP',yylloc)
-    this.node = node
   }
 }
 
@@ -163,7 +164,7 @@ class ASTAssignExp extends ASTBranch {
   left:any
   right:any
 
-  constructor(yylloc, left, right) {
+  constructor(yylloc:any, left:any, right:any) {
     super('ASSIGN_EXP',yylloc)
   }
 }
@@ -182,9 +183,9 @@ class ASTFuncExp extends ASTNode {
 }
 
 class ASTStatement extends ASTNode {
-  constructor(yyloc, node) {
+  node:any
+  constructor(yyloc:any, node:any) {
     super('STATEMENT', yyloc)
-    this.node = node
   }
 }
 
@@ -192,9 +193,10 @@ class ASTStatement extends ASTNode {
 //              OR just statement
 class ASTStatements extends ASTNode {
   // statements is optional
-  constructor(yyloc, statement, statements) {
+  statement:ASTStatement
+  statements:ASTStatements
+  constructor(yyloc, statement:ASTStatement, statements:ASTStatements) {
     super('STATEMENTS',yyloc)
-    this.statement = statement
     if (statements !== undefined) {
       this.statements = statements
     } else {
