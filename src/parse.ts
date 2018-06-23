@@ -40,10 +40,8 @@ global.bark = {};
 class Monitor {
   terminals: Array<number> = []
   targetTokenNumbers: Array<number> = []
-  symbols: Array<number>
-  constructor() {
-    this.symbols = []
-  }
+  symbols: Array<number> = []
+  constructor() {}
 
   reset() {
     this.symbols = []
