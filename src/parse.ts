@@ -4,7 +4,9 @@
 
 //const fs = require("fs");
 import * as Jison from "jison"
-import JisonLex from "jison-lex"
+//tslint:disable-next-line
+// import * as JisonLex from "jison-lex" 
+import JisonLex = require("jison-lex")
 import * as ast from './ast'
 
 let Parser = Jison.Parser;
