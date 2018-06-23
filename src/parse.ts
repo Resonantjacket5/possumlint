@@ -243,12 +243,12 @@ class Possum {
     // this.lexer.lex = this.bulidCustomLexFunc()
     this.lexer.yy = ast
     this.lexer.yy.monitor = this.monitor
-    this.lexer.yy.monitor.shouldSemiColon = function () {return false }
+    // this.lexer.yy.monitor.shouldSemiColon = function () {return false }
     
     
 
     this.parser = new Parser(grammar)
-    this.monitor.setUpTerminals(this.parser.terminals_)
+    // this.monitor.setUpTerminals(this.parser.terminals_)
   }
 
   bulidCustomLexFunc():Function {
@@ -272,7 +272,7 @@ class Possum {
   }
 
   tokenize(text:string):Array<string> {
-    this.monitor.reset()
+    //this.monitor.reset()
     this.lexer.setInput(text)
     let tokens:Array<string> = []
     let token = this.lexer.lex()
