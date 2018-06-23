@@ -11,8 +11,6 @@ let Parser = Jison.Parser;
 
 // global so callable in jison's bnf
 // declare var bark;
-global.bark = {};
-
 
 // instanceof will say if obj is class or in prototype chain
 
@@ -196,14 +194,14 @@ let grammar = {
 }
 
 
-bark.monitor = new Monitor();
+let monitor = new Monitor();
 
 // override built in lex in order to monitor
 //  rules so we can know when to insert semicolons
 function lex () {
   // r is rule number matched
   var r = this.next();
-  bark.monitor.addRuleMatched(r)  
+  monitor.addRuleMatched(r)  
   if (r) {
     // console.log(r)
     // if(r in parser.terminals_) {
@@ -237,14 +235,14 @@ function lexus (text) {
 // lexer.monitor = bark.monitor
 lexer.lexus = lexus
 lexer.yy = {}
-lexer.yy.monitor = bark.monitor
+lexer.yy.monitor = monitor
 
 let parser = new Parser(grammar)
 parser.lexer.lex = lex
 // parser.lexer.monitor = bark.monitor
-bark.monitor.setUpTerminals(parser.terminals_)
+monitor.setUpTerminals(parser.terminals_)
 parser.yy = ast
-parser.yy.monitor = bark.monitor
+parser.yy.monitor = monitor
 console.log('parser',parser)
 // Finished all Setup
 console.log(lexus)
@@ -306,7 +304,7 @@ function main () {
   let tokens = lexer.lexus(jenkinsFile)
   console.log(tokens)
 
-  bark.monitor.reset()
+  monitor.reset()
   let output = parser.parse(jenkinsFile)
   console.log(output)
 
@@ -319,6 +317,6 @@ main()
 module.exports.parser = parser
 module.exports.lexer = lexer
 // refactor monitor to be part of main
-module.exports.monitor = bark.monitor
+module.exports.monitor = monitor
 
 export const possum = new Possum(grammar)
