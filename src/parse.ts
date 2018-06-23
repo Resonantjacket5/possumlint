@@ -69,7 +69,7 @@ class Monitor {
 //   console.log(`<${token}> ln:${yylloc.first_line} col:${yylloc.first_column}`)
 // }
 
-let grammar = {
+let grammar:Jison.grammar = {
   "lex" :{
     "macros": {
       "ASCII": "a-zA-Z", //1
@@ -196,7 +196,7 @@ function lex () {
 }
 
 // deep clone grammar to prevent collisions with parser
-let lexGrammar = JSON.parse(JSON.stringify(grammar.lex));
+let lexGrammar:Jison.grammar = JSON.parse(JSON.stringify(grammar.lex));
 var lexer = new JisonLex(lexGrammar)//.lex)
 // lexer.lex = lex
 //lexer.setInput("one ( )\n")
@@ -231,7 +231,8 @@ parser.yy.monitor = monitor
 class Possum {
   monitor:Monitor
   grammar:any
-  lexer:any
+  lexer:JisonLex
+  parser:Jison.Parser
   constructor(grammar:any) {
     this.monitor = new Monitor()
 
@@ -239,8 +240,10 @@ class Possum {
     let lexGrammar = JSON.parse(JSON.stringify(grammar.lex))
     this.lexer = new JisonLex(lexGrammar)
     // this.lexer.lex = this.bulidCustomLexFunc()
-    this.lexer.monitor = this.monitor
+    this.lexer.yy.monitor = this.monitor
     this.lexer.yy = ast
+
+    this.parser = new Parser(grammar)
   }
 
   bulidCustomLexFunc():Function {

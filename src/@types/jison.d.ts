@@ -25,6 +25,19 @@ declare module 'jison' {
     precedence:number
   }
 
+  type grammar = {
+    // [top:string]: {
+
+    // }
+    "lex":{
+    //   'macros':any
+    //   'startConditions':any
+    //   'rules':any
+    }
+    "bnf":{
+    }
+  }
+
   export class Lexer {
     parseError: Function
     setInput: Function // accepts string
