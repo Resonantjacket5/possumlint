@@ -5,7 +5,9 @@
 //const fs = require("fs");
 import Jison = require("jison");
 import JisonLex = require("jison-lex");
-import { ASTNode, ASTNumber, ASTFuncExp, ASTAssignExp, ASTStatement, ASTStatements } from "./ast";
+import { ASTFuncExp, ASTAssignExp, ASTStatement, ASTStatements } from "./ast";
+
+import * as ast from './ast'
 
 let Parser = Jison.Parser;
 
@@ -15,20 +17,6 @@ global.bark = {};
 
 
 // instanceof will say if obj is class or in prototype chain
-
-
-
-
-
-
-
-
-bark.ASTNode = ASTNode
-bark.ASTNumber = ASTNumber
-bark.ASTFuncExp = ASTFuncExp
-bark.ASTAssignExp = ASTAssignExp
-bark.ASTStatement = ASTStatement
-bark.ASTStatements = ASTStatements
 
 //import Parser from 'jison';
 // http://zaa.ch/jison/docs/#usage-from-the-command-line
@@ -172,20 +160,20 @@ var grammar = {
      //["STATEMENTS ; EOF"," return $1"],
     ],
     "STATEMENTS": [
-      ["STATEMENTS STATEMENT ;","$$ = new bark.ASTStatements(@1,$3,$1)"],
-      ["STATEMENT ;","$$ = new bark.ASTStatements(@1,$1)"],
+      ["STATEMENTS STATEMENT ;","$$ = new yy.ASTStatements(@1,$3,$1)"],
+      ["STATEMENT ;","$$ = new yy.ASTStatements(@1,$1)"],
     ],
     // contains different kinda of expressions
     // but not all versions aka string wouldn't count
     "STATEMENT": [
       //"ID = EXP",
-      ["EXP","$$ = new bark.ASTStatement(@1,$1)"],
+      ["EXP","$$ = new yy.ASTStatement(@1,$1)"],
     ],
     "EXP": [
       "ASSIGN_EXP",
       "FUNC_EXP",
       // "LITERAL",
-      ["NUM"," console.log('yytext',yytext); console.log(this.monitor);$$ = new bark.ASTNumber(@1, yytext)"],
+      ["NUM"," console.log('yytext',yytext); console.log(this.monitor);$$ = new yy.ASTNumber(@1, yytext)"],
       "STRING",
     ],
     // "CALLER":[
@@ -195,20 +183,20 @@ var grammar = {
     //   "ID"
     // ],constructor(yylloc, callerNode, argNode)
     "ASSIGN_EXP": [
-      //["ID = EXP", "$$ = new bark.ASTAssignExp(@1, $1, $3)"],
+      //["ID = EXP", "$$ = new yy.ASTAssignExp(@1, $1, $3)"],
       "ID = EXP",
     ],
     "FUNC_EXP": [ 
       // not sure if groovy closure ones should be separate or not
       "ID ( EXP ) { STATEMENTS }",
       "ID { STATEMENTS }",
-      //["ID ( EXP )","$$ = new bark.ASTFuncExp(@1,$1,$3)"],
-      ["ID ( EXP )","$$ = new bark.ASTFuncExp(@1, $1, $3)"],
+      //["ID ( EXP )","$$ = new yy.ASTFuncExp(@1,$1,$3)"],
+      ["ID ( EXP )","$$ = new yy.ASTFuncExp(@1, $1, $3)"],
       "ID EXP",
       "ID ( )",
     ],
     // "LITERAL":[
-    //   ["NUM","console.log('num exp'); $$ = new bark.ASTNumber(@1, yytext)"],
+    //   ["NUM","console.log('num exp'); $$ = new yy.ASTNumber(@1, yytext)"],
     //   "STRING",
     // ]
     // "ID":[
@@ -259,12 +247,13 @@ function lexus (text) {
 }
 lexer.monitor = bark.monitor
 lexer.lexus = lexus
+lexer.yy = ast
 
 let parser = new Parser(grammar)
 parser.lexer.lex = lex
 parser.lexer.monitor = bark.monitor
 bark.monitor.setUpTerminals(parser.terminals_)
-parser.bark = bark
+parser.yy = ast
 console.log('parser',parser)
 // Finished all Setup
 

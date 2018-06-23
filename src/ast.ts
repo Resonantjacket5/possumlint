@@ -1,4 +1,4 @@
-export class ASTNode {
+class ASTNode {
   // symbol is type of terminal
   symbol: string
   line: number
@@ -15,7 +15,7 @@ export class ASTNode {
 }
 
 // Abstract Syntax Tree Literals (or Terminals)
-export class ASTLiteral extends ASTNode {
+class ASTLiteral extends ASTNode {
   text: string
   constructor(symbol:string, yylloc:any, yytext:string) {
     super(symbol,  yylloc)
