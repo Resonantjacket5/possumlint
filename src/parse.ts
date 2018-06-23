@@ -3,11 +3,14 @@
 // import file to call the parsing
 
 //const fs = require("fs");
-var Parser = require("jison").Parser;
-var JisonLex = require("jison-lex");
+import Jison = require("jison");
+import JisonLex = require("jison-lex");
+
+let Parser = Jison.Parser;
 
 // global so callable in jison's bnf
-bark = {} 
+// declare var bark;
+global.bark = {};
 
 //import Parser from 'jison';
 // http://zaa.ch/jison/docs/#usage-from-the-command-line
@@ -35,11 +38,10 @@ bark = {}
 
 
 class Monitor {
-  constructor() {
-    this.terminals = false // {}
-    this.targetTokenNumbers = false // []
-    this.symbols = []
-  }
+  terminals: Array<number> = []
+  targetTokenNumbers: Array<number> = []
+  symbols: Array<number> = []
+  constructor() {}
 
   reset() {
     this.symbols = []
@@ -48,7 +50,7 @@ class Monitor {
   // return true if previous line number not same
   // as curLineNumber and last token was } or )
   shouldSemiColon(yylloc) {
-    if (this.terminals == false) {
+    if (this.terminals === []) {
       throw new Error('terminals not set')
     }
     if (yylloc.first_line === yylloc.last_line) {
@@ -102,27 +104,29 @@ class ASTPrinter {
 
 class ASTNode {
   // symbol is type of terminal
+  symbol: string
+  line: number
+  column: number
+
   constructor(symbol, yylloc) {
-    this.symbol = symbol
     this.line = yylloc.first_line
     this.column = yylloc.first_column
-
-    // for every node constructed monitor it
-    //bark.monitor.addNode(symbol, yylloc)
   }
 
-  toString() {
+  toString():string {
     return `<${this.symbol}> line:${this.line} col:${this.column}`
   }
 }
 
+// Abstract Syntax Tree Literals (or Terminals)
 class ASTLiteral extends ASTNode {
+  text: string
   constructor(symbol, yylloc, yytext) {
     super(symbol,  yylloc)
     this.text = yytext
   }
 
-  toString() {
+  toString():string {
     return `<${this.symbol}> ${this.text} line:${this.line} col:${this.column}`
   }
 }
@@ -139,10 +143,28 @@ class ASTString extends ASTLiteral {
   }
 }
 
+// Abstract Syntax tree 
+class ASTBranch extends ASTNode {
+
+  nodes:Array<ASTNode> = []
+
+  constructor(symbol, yylloc) {
+    super(symbol, yylloc)
+  }
+}
 class ASTExp extends ASTNode {
   constructor(yylloc, node) {
     super('EXP',yylloc)
     this.node = node
+  }
+}
+
+class ASTAssignExp extends ASTBranch {
+  left:any
+  right:any
+
+  constructor(yylloc, left, right) {
+    super('ASSIGN_EXP',yylloc)
   }
 }
 
@@ -185,13 +207,14 @@ class ASTStatements extends ASTNode {
 bark.ASTNode = ASTNode
 bark.ASTNumber = ASTNumber
 bark.ASTFuncExp = ASTFuncExp
+bark.ASTAssignExp = ASTAssignExp
 bark.ASTStatement = ASTStatement
 bark.ASTStatements = ASTStatements
 
 //print token function
-pt = function (token,yylloc) {
-  console.log(`<${token}> ln:${yylloc.first_line} col:${yylloc.first_column}`)
-}
+// pt = function (token,yylloc) {
+//   console.log(`<${token}> ln:${yylloc.first_line} col:${yylloc.first_column}`)
+// }
 
 
 var grammar = {
@@ -207,7 +230,7 @@ var grammar = {
     },
     "rules":[
       ["$","return 'EOF'"], // 7?
-      ["[\\s]+","if(bark.monitor.shouldSemiColon(yylloc)) {return ';'; } // whitespace"], //8
+      ["[\\s]+","if(this.monitor.shouldSemiColon(yylloc)) {return ';'; } // whitespace"], //8
       //print('whitespace');console.log(yylloc);console.log('semi '+bark.monitor.shouldSemiColon(yylloc))
       //["[ \\r\\t]+","/* skip whitespace */"],
       //["\\n","console.log('newline '+yylloc.first_line);if(bark.monitor.shouldSemiColon(yylloc.first_line)){console.log('semicolon')} /*skip newlines   */"],
@@ -232,6 +255,7 @@ var grammar = {
       ["\\)","return ')'"], //14
       ["\\{","return '{'"],
       ["\\}","return '}'"], //16
+      ["=","return '='"],
       // simplified return string
       [
         "\'.*\'",
@@ -256,12 +280,13 @@ var grammar = {
     // but not all versions aka string wouldn't count
     "STATEMENT": [
       //"ID = EXP",
-      ["FUNC_EXP","$$ = new bark.ASTStatement(@1,$1)"],
+      ["EXP","$$ = new bark.ASTStatement(@1,$1)"],
     ],
     "EXP": [
+      "ASSIGN_EXP",
       "FUNC_EXP",
       // "LITERAL",
-      ["NUM"," $$ = new bark.ASTNumber(@1, yytext)"],
+      ["NUM"," console.log('yytext',yytext); console.log(this.monitor);$$ = new bark.ASTNumber(@1, yytext)"],
       "STRING",
     ],
     // "CALLER":[
@@ -270,7 +295,11 @@ var grammar = {
     // "MEMBER":[
     //   "ID"
     // ],constructor(yylloc, callerNode, argNode)
-    "FUNC_EXP": [
+    "ASSIGN_EXP": [
+      //["ID = EXP", "$$ = new bark.ASTAssignExp(@1, $1, $3)"],
+      "ID = EXP",
+    ],
+    "FUNC_EXP": [ 
       // not sure if groovy closure ones should be separate or not
       "ID ( EXP ) { STATEMENTS }",
       "ID { STATEMENTS }",
@@ -287,7 +316,7 @@ var grammar = {
     //   "ID"
     // ]
     // https://tc39.github.io/ecma262/#sec-property-accessors
-    // "ID":[
+    // "ID":[ 
     //   "ID . ID"
     // ]
   }
@@ -329,17 +358,21 @@ function lexus (text) {
   }
   return tokens
 }
+lexer.monitor = bark.monitor
 lexer.lexus = lexus
 
-parser = new Parser(grammar)
+let parser = new Parser(grammar)
 parser.lexer.lex = lex
+parser.lexer.monitor = bark.monitor
 bark.monitor.setUpTerminals(parser.terminals_)
-
+parser.bark = bark
+console.log('parser',parser)
 // Finished all Setup
+
 
 function main () {
 
-  let jenkinsFile = "one ( 12 )\n"
+  let jenkinsFile = "one = 12;\n"
 
   let tokens = lexer.lexus(jenkinsFile)
   console.log(tokens)
@@ -348,7 +381,7 @@ function main () {
   let output = parser.parse(jenkinsFile)
   console.log(output)
 
-  console.log(parser.terminals_)
+  // console.log(parser.terminals_)
 }
 
 main()
