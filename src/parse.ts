@@ -5,12 +5,30 @@
 //const fs = require("fs");
 import Jison = require("jison");
 import JisonLex = require("jison-lex");
+import { ASTNode, ASTNumber, ASTFuncExp, ASTAssignExp, ASTStatement, ASTStatements } from "./ast";
 
 let Parser = Jison.Parser;
 
 // global so callable in jison's bnf
 // declare var bark;
 global.bark = {};
+
+
+// instanceof will say if obj is class or in prototype chain
+
+
+
+
+
+
+
+
+bark.ASTNode = ASTNode
+bark.ASTNumber = ASTNumber
+bark.ASTFuncExp = ASTFuncExp
+bark.ASTAssignExp = ASTAssignExp
+bark.ASTStatement = ASTStatement
+bark.ASTStatements = ASTStatements
 
 //import Parser from 'jison';
 // http://zaa.ch/jison/docs/#usage-from-the-command-line
@@ -27,15 +45,6 @@ global.bark = {};
 
 // javascript functions
 // https://github.com/estree/estree/blob/master/es5.md
-
-
-// print = function (text) {
-//   // use process.stdout.write for linux
-//   //process.stdout.write(text);
-//   //process.stdout.write("\n");
-//   console.log(text)
-// }
-
 
 class Monitor {
   // terminals: hashmap<number,string>
@@ -100,118 +109,6 @@ class ASTPrinter {
     }
   }
 }
-
-// instanceof will say if obj is class or in prototype chain
-
-class ASTNode {
-  // symbol is type of terminal
-  symbol: string
-  line: number
-  column: number
-
-  constructor(symbol:string, yylloc:any) {
-    this.line = yylloc.first_line
-    this.column = yylloc.first_column
-  }
-
-  toString():string {
-    return `<${this.symbol}> line:${this.line} col:${this.column}`
-  }
-}
-
-// Abstract Syntax Tree Literals (or Terminals)
-class ASTLiteral extends ASTNode {
-  text: string
-  constructor(symbol:string, yylloc:any, yytext:string) {
-    super(symbol,  yylloc)
-    this.text = yytext
-  }
-
-  toString():string {
-    return `<${this.symbol}> ${this.text} line:${this.line} col:${this.column}`
-  }
-}
-
-class ASTNumber extends ASTLiteral {
-  constructor( yylloc, yytext) {
-    super('NUM', yylloc, yytext)
-  }
-}
-
-class ASTString extends ASTLiteral {
-  constructor( yylloc, yytext) {
-    super('STRING',yylloc, yytext)
-  }
-}
-
-// Abstract Syntax tree 
-class ASTBranch extends ASTNode {
-
-  nodes:Array<ASTNode> = []
-
-  constructor(symbol:string, yylloc:any) {
-    super(symbol, yylloc)
-  }
-}
-class ASTExp extends ASTNode {
-  node:ASTNode
-  constructor(yylloc:any, node:ASTNode) {
-    super('EXP',yylloc)
-  }
-}
-
-class ASTAssignExp extends ASTBranch {
-  left:any
-  right:any
-
-  constructor(yylloc:any, left:any, right:any) {
-    super('ASSIGN_EXP',yylloc)
-  }
-}
-
-class ASTFuncExp extends ASTNode {
-  // argNode is optional
-  constructor(yylloc, callerNode, argNode) {
-    super('FUNC_EXP', yylloc)
-    this.callerNode = callerNode
-    if (argNode !== undefined) {
-      this.argNode = argNode
-    } else {
-      this.argNode = null
-    }
-  }
-}
-
-class ASTStatement extends ASTNode {
-  node:any
-  constructor(yyloc:any, node:any) {
-    super('STATEMENT', yyloc)
-  }
-}
-
-// holds either both statements and statement
-//              OR just statement
-class ASTStatements extends ASTNode {
-  // statements is optional
-  statement:ASTStatement
-  statements:ASTStatements
-  constructor(yyloc, statement:ASTStatement, statements:ASTStatements) {
-    super('STATEMENTS',yyloc)
-    if (statements !== undefined) {
-      this.statements = statements
-    } else {
-      this.statements = null
-    }
-  }
-}
-
-
-bark.ASTNode = ASTNode
-bark.ASTNumber = ASTNumber
-bark.ASTFuncExp = ASTFuncExp
-bark.ASTAssignExp = ASTAssignExp
-bark.ASTStatement = ASTStatement
-bark.ASTStatements = ASTStatements
 
 //print token function
 // pt = function (token,yylloc) {
