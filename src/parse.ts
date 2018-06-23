@@ -3,8 +3,8 @@
 // import file to call the parsing
 
 //const fs = require("fs");
-import Jison = require("jison");
-import JisonLex = require("jison-lex");
+import * as Jison from "jison"
+import * as JisonLex from "jison-lex"
 import * as ast from './ast'
 
 let Parser = Jison.Parser;
@@ -44,7 +44,7 @@ class Monitor {
 
   // return true if previous line number not same
   // as curLineNumber and last token was } or )
-  shouldSemiColon(yylloc) {
+  shouldSemiColon(yylloc:any) {
     if (this.terminals === []) {
       throw new Error('terminals not set')
     }
@@ -75,7 +75,7 @@ class Monitor {
     }
   }
 
-  addRuleMatched(rule) {
+  addRuleMatched(rule:number) {
     // if not whitespace add rule
     if (rule !== 8) {
       this.symbols.push(rule)
@@ -221,7 +221,7 @@ var lexer = new JisonLex(lexGrammar)//.lex)
 //lexer.setInput("one ( )\n")
 
 // Takes in text and returns array of tokens
-function lexus (text) {
+function lexus (text:string) {
   this.setInput(text)
   let tokens = []
   let token = this.lex()
