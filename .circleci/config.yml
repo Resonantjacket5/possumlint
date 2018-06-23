@@ -29,6 +29,6 @@ jobs:
             - node_modules
           key: v1-dependencies-{{ checksum "package.json" }}
       
-      - run: yarn run node_modules/typescript/bin/tsc
+      - run: yarn run tsc
       # run tests!
       - run: yarn test

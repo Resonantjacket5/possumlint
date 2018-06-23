@@ -119,12 +119,13 @@ class ASTNode {
 }
 
 class ASTLiteral extends ASTNode {
+  text: string
   constructor(symbol, yylloc, yytext) {
     super(symbol,  yylloc)
     this.text = yytext
   }
 
-  toString() {
+  toString():string {
     return `<${this.symbol}> ${this.text} line:${this.line} col:${this.column}`
   }
 }
