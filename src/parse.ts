@@ -104,16 +104,16 @@ class ASTPrinter {
 
 class ASTNode {
   // symbol is type of terminal
+  symbol: string
+  line: number
+  column: number
+
   constructor(symbol, yylloc) {
-    this.symbol = symbol
     this.line = yylloc.first_line
     this.column = yylloc.first_column
-
-    // for every node constructed monitor it
-    //bark.monitor.addNode(symbol, yylloc)
   }
 
-  toString() {
+  toString():string {
     return `<${this.symbol}> line:${this.line} col:${this.column}`
   }
 }
