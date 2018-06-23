@@ -3,11 +3,20 @@ declare module 'jison' {
     yy:any
     productions: Array<typal_constructor>
     lexer:Lexer
+    symbols_: {[symbol:string]: number}
+    terminals_: {[terminalNumber:number]:string}
+    productions_: Array<[number,number]>
 
     constructor(grammar:any)
+
+    // anonymous function
+    performAction: Function
+
+    // Returns result from the goal statement
+    parse(text:string):any
   }
 
-  interface typal_constructor {
+  type typal_constructor = {
     symbol:string
     handle:Array<any>
     nullable:boolean
