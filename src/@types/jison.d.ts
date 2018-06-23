@@ -34,7 +34,18 @@ declare module 'jison' {
     //   'startConditions':any
     //   'rules':any
     }
+    /* 
+      bnf type expects 
+      SYMBOL: [
+        "MATCH",
+        "["MATCH","$$ = new Exp();"],
+      ]
+    */
     "bnf":{
+      [symbol:string]:
+      Array<
+        Array<string> | string
+      >
     }
   }
 
