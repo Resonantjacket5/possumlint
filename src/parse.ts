@@ -3,11 +3,14 @@
 // import file to call the parsing
 
 //const fs = require("fs");
-var Parser = require("jison").Parser;
-var JisonLex = require("jison-lex");
+import Jison = require("jison");
+import JisonLex = require("jison-lex");
+
+let Parser = Jison.Parser;
 
 // global so callable in jison's bnf
-bark = {} 
+// declare var bark;
+global.bark = {};
 
 //import Parser from 'jison';
 // http://zaa.ch/jison/docs/#usage-from-the-command-line
@@ -189,9 +192,9 @@ bark.ASTStatement = ASTStatement
 bark.ASTStatements = ASTStatements
 
 //print token function
-pt = function (token,yylloc) {
-  console.log(`<${token}> ln:${yylloc.first_line} col:${yylloc.first_column}`)
-}
+// pt = function (token,yylloc) {
+//   console.log(`<${token}> ln:${yylloc.first_line} col:${yylloc.first_column}`)
+// }
 
 
 var grammar = {
@@ -207,7 +210,7 @@ var grammar = {
     },
     "rules":[
       ["$","return 'EOF'"], // 7?
-      ["[\\s]+","if(bark.monitor.shouldSemiColon(yylloc)) {return ';'; } // whitespace"], //8
+      ["[\\s]+","if(this.monitor.shouldSemiColon(yylloc)) {return ';'; } // whitespace"], //8
       //print('whitespace');console.log(yylloc);console.log('semi '+bark.monitor.shouldSemiColon(yylloc))
       //["[ \\r\\t]+","/* skip whitespace */"],
       //["\\n","console.log('newline '+yylloc.first_line);if(bark.monitor.shouldSemiColon(yylloc.first_line)){console.log('semicolon')} /*skip newlines   */"],
@@ -261,7 +264,7 @@ var grammar = {
     "EXP": [
       "FUNC_EXP",
       // "LITERAL",
-      ["NUM"," $$ = new bark.ASTNumber(@1, yytext)"],
+      ["NUM"," console.log('yytext',yytext); console.log(this.monitor);$$ = new bark.ASTNumber(@1, yytext)"],
       "STRING",
     ],
     // "CALLER":[
@@ -270,7 +273,7 @@ var grammar = {
     // "MEMBER":[
     //   "ID"
     // ],constructor(yylloc, callerNode, argNode)
-    "FUNC_EXP": [
+    "FUNC_EXP": [ 
       // not sure if groovy closure ones should be separate or not
       "ID ( EXP ) { STATEMENTS }",
       "ID { STATEMENTS }",
@@ -287,7 +290,7 @@ var grammar = {
     //   "ID"
     // ]
     // https://tc39.github.io/ecma262/#sec-property-accessors
-    // "ID":[
+    // "ID":[ 
     //   "ID . ID"
     // ]
   }
@@ -329,13 +332,17 @@ function lexus (text) {
   }
   return tokens
 }
+lexer.monitor = bark.monitor
 lexer.lexus = lexus
 
-parser = new Parser(grammar)
+let parser = new Parser(grammar)
 parser.lexer.lex = lex
+parser.lexer.monitor = bark.monitor
 bark.monitor.setUpTerminals(parser.terminals_)
-
+parser.bark = bark
+console.log('parser',parser)
 // Finished all Setup
+
 
 function main () {
 
