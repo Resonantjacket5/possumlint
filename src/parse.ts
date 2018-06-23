@@ -4,7 +4,7 @@
 
 //const fs = require("fs");
 import * as Jison from "jison"
-import * as JisonLex from "jison-lex"
+import JisonLex from "jison-lex"
 import * as ast from './ast'
 
 let Parser = Jison.Parser;
@@ -222,13 +222,14 @@ var lexer = new JisonLex(lexGrammar)//.lex)
 
 // Takes in text and returns array of tokens
 function lexus (text:string) {
-  this.setInput(text)
-  let tokens = []
-  let token = this.lex()
+  let lexer:Jison.Lexer = this
+  lexer.setInput(text)
+  let tokens:Array<number> = []
+  let token:number = lexer.lex()
   // iterate until no tokens left
   while(token !== 1) {
     tokens.push(token)
-    token = this.lex()
+    token = lexer.lex()
   }
   return tokens
 }
@@ -307,6 +308,7 @@ function main () {
   monitor.reset()
   let output = parser.parse(jenkinsFile)
   console.log(output)
+  console.log(parser)
 
   // console.log(parser.terminals_)
 }
