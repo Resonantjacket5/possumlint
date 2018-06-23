@@ -38,9 +38,8 @@ global.bark = {};
 
 
 class Monitor {
-  terminals: boolean = false
+  terminals: Array<number> = []
   constructor() {
-    this.terminals = false // {}
     this.targetTokenNumbers = false // []
     this.symbols = []
   }
@@ -52,7 +51,7 @@ class Monitor {
   // return true if previous line number not same
   // as curLineNumber and last token was } or )
   shouldSemiColon(yylloc) {
-    if (this.terminals == false) {
+    if (this.terminals === []) {
       throw new Error('terminals not set')
     }
     if (yylloc.first_line === yylloc.last_line) {
