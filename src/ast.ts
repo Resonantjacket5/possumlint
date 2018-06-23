@@ -65,10 +65,9 @@ export class ASTAssignExp extends ASTBranch {
 }
 
 export class ASTFuncExp extends ASTNode {
-  // argNode is optional
+  callerNode:any
   constructor(yylloc, callerNode, argNode) {
     super('FUNC_EXP', yylloc)
-    this.callerNode = callerNode
     if (argNode !== undefined) {
       this.argNode = argNode
     } else {
