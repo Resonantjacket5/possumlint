@@ -38,6 +38,7 @@ global.bark = {};
 
 
 class Monitor {
+  terminals: boolean = false
   constructor() {
     this.terminals = false // {}
     this.targetTokenNumbers = false // []
