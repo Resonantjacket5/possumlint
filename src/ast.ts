@@ -98,3 +98,14 @@ export class ASTStatements extends ASTNode {
     }
   }
 }
+
+
+class ASTPrinter {
+  visit(node, action) {
+    switch(node.symbol) {
+      case 'STATEMENTS': {
+        action(node)
+      }
+    }
+  }
+}

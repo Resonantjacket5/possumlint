@@ -5,8 +5,6 @@
 //const fs = require("fs");
 import Jison = require("jison");
 import JisonLex = require("jison-lex");
-import { ASTFuncExp, ASTAssignExp, ASTStatement, ASTStatements } from "./ast";
-
 import * as ast from './ast'
 
 let Parser = Jison.Parser;
@@ -39,6 +37,7 @@ class Monitor {
   terminals: any = []
   targetTokenNumbers: Array<string> = []
   symbols: Array<number> = []
+
   constructor() {}
 
   reset() {
@@ -86,25 +85,12 @@ class Monitor {
   }
 }
 
-bark.monitor = new Monitor();
-
-class ASTPrinter {
-  visit(node, action) {
-    switch(node.symbol) {
-      case 'STATEMENTS': {
-        action(node)
-      }
-    }
-  }
-}
-
 //print token function
 // pt = function (token,yylloc) {
 //   console.log(`<${token}> ln:${yylloc.first_line} col:${yylloc.first_column}`)
 // }
 
-
-var grammar = {
+let grammar = {
   "lex" :{
     "macros": {
       "ASCII": "a-zA-Z", //1
@@ -117,7 +103,7 @@ var grammar = {
     },
     "rules":[
       ["$","return 'EOF'"], // 7?
-      ["[\\s]+","if(this.monitor.shouldSemiColon(yylloc)) {return ';'; } // whitespace"], //8
+      ["[\\s]+","if(yy.monitor.shouldSemiColon(yylloc)) {return ';'; } // whitespace"], //8
       //print('whitespace');console.log(yylloc);console.log('semi '+bark.monitor.shouldSemiColon(yylloc))
       //["[ \\r\\t]+","/* skip whitespace */"],
       //["\\n","console.log('newline '+yylloc.first_line);if(bark.monitor.shouldSemiColon(yylloc.first_line)){console.log('semicolon')} /*skip newlines   */"],
@@ -173,7 +159,7 @@ var grammar = {
       "ASSIGN_EXP",
       "FUNC_EXP",
       // "LITERAL",
-      ["NUM"," console.log('yytext',yytext); console.log(this.monitor);$$ = new yy.ASTNumber(@1, yytext)"],
+      ["NUM"," console.log('yytext',yytext); $$ = new yy.ASTNumber(@1, yytext)"],
       "STRING",
     ],
     // "CALLER":[
@@ -209,6 +195,9 @@ var grammar = {
   }
 }
 
+
+bark.monitor = new Monitor();
+
 // override built in lex in order to monitor
 //  rules so we can know when to insert semicolons
 function lex () {
@@ -216,14 +205,14 @@ function lex () {
   var r = this.next();
   bark.monitor.addRuleMatched(r)  
   if (r) {
-      // console.log(r)
-      // if(r in parser.terminals_) {
-      //   let token = parser.terminals_[r]
-      //   console.log(token)
-      // }
-      return r;
+    // console.log(r)
+    // if(r in parser.terminals_) {
+    //   let token = parser.terminals_[r]
+    //   console.log(token)
+    // }
+    return r;
   } else {
-      return this.lex();
+    return this.lex();
   }
 }
 
@@ -245,17 +234,69 @@ function lexus (text) {
   }
   return tokens
 }
-lexer.monitor = bark.monitor
+// lexer.monitor = bark.monitor
 lexer.lexus = lexus
-lexer.yy = ast
+lexer.yy = {}
+lexer.yy.monitor = bark.monitor
 
 let parser = new Parser(grammar)
 parser.lexer.lex = lex
-parser.lexer.monitor = bark.monitor
+// parser.lexer.monitor = bark.monitor
 bark.monitor.setUpTerminals(parser.terminals_)
 parser.yy = ast
+parser.yy.monitor = bark.monitor
 console.log('parser',parser)
 // Finished all Setup
+console.log(lexus)
+class Possum {
+  monitor:Monitor
+  grammar:any
+  lexer:any
+  constructor(grammar:any) {
+    this.monitor = new Monitor()
+
+    // deep clone to prevent modifyingg original
+    let lexGrammar = JSON.parse(JSON.stringify(grammar.lex))
+    this.lexer = new JisonLex(lexGrammar)
+    // this.lexer.lex = this.bulidCustomLexFunc()
+    this.lexer.monitor = this.monitor
+    this.lexer.yy = ast
+  }
+
+  bulidCustomLexFunc():Function {
+    let _this = this
+    let lex = function() {
+      // r is rule number matched
+      var r = this.next();
+      _this.monitor.addRuleMatched(r)  
+      if (r) {
+        // console.log(r)
+        // if(r in parser.terminals_) {
+        //   let token = parser.terminals_[r]
+        //   console.log(token)
+        // }
+        return r;
+      } else {
+        return this.lex();
+      }
+    }
+    return lex
+  }
+
+  tokenize(text:string):Array<string> {
+    // this.monitor.reset()
+    this.lexer.setInput(text)
+    let tokens:Array<string> = []
+    let token = this.lexer.lex()
+    // iterate until no tokens left
+    while(token !== 1) {
+      tokens.push(token)
+      token = this.lexer.lex()
+    }
+    return tokens
+  }
+
+}
 
 
 function main () {
@@ -279,3 +320,5 @@ module.exports.parser = parser
 module.exports.lexer = lexer
 // refactor monitor to be part of main
 module.exports.monitor = bark.monitor
+
+export const possum = new Possum(grammar)
