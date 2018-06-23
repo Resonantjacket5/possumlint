@@ -4,10 +4,10 @@ declare module 'jison' {
     productions: Array<typal_constructor>
     lexer:Lexer
     symbols_: {[symbol:string]: number}
-    terminals_: {[terminalNumber:number]:string}
+    terminals_: numToString
     productions_: Array<[number,number]>
 
-    constructor(grammar:any)
+    constructor(grammar:grammar)
 
     // anonymous function
     performAction: Function
@@ -16,6 +16,8 @@ declare module 'jison' {
     parse(text:string):any
   }
 
+  type numToString = {[num:number]:string}
+
   type typal_constructor = {
     symbol:string
     handle:Array<any>
@@ -23,6 +25,13 @@ declare module 'jison' {
     id: number 
     first: Array<any>
     precedence:number
+  }
+
+  type yylloc = {
+    'first_line': number
+    'last_line': number
+    'first_column': number
+    'last_column': number
   }
 
   type grammar = {

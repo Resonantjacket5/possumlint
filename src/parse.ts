@@ -25,15 +25,16 @@ class Monitor {
 
   // return true if previous line number not same
   // as curLineNumber and last token was } or )
-  shouldSemiColon(yylloc:any) {
+  shouldSemiColon(yylloc:Jison.yylloc) {
     if (this.terminals === []) {
+      console.log('ERROR')
       throw new Error('terminals not set')
     }
     if (yylloc.first_line === yylloc.last_line) {
       //console.log('same line')
       return false
     }
-    let lastVal = this.symbols[this.symbols.length-1]
+    let lastVal:number = this.symbols[this.symbols.length-1]
     if (this.targetTokenNumbers.includes(String(lastVal)))  {
       return true
     }
@@ -42,7 +43,7 @@ class Monitor {
 
   // pass in dictionar of terminals
   // terminals: hashmap<number,string>
-  setUpTerminals(terminals:any) {
+  setUpTerminals(terminals:Jison.numToString) {
     this.terminals = terminals
     this.targetTokenNumbers = []
     let targetTerminals = ['ID','STRING',')','}']
@@ -230,20 +231,24 @@ parser.yy.monitor = monitor
 // console.log(lexus)
 class Possum {
   monitor:Monitor
-  grammar:any
+  grammar:Jison.grammar
   lexer:JisonLex
   parser:Jison.Parser
-  constructor(grammar:any) {
+  constructor(grammar:Jison.grammar) {
     this.monitor = new Monitor()
 
     // deep clone to prevent modifyingg original
     let lexGrammar = JSON.parse(JSON.stringify(grammar.lex))
     this.lexer = new JisonLex(lexGrammar)
     // this.lexer.lex = this.bulidCustomLexFunc()
-    this.lexer.yy.monitor = this.monitor
     this.lexer.yy = ast
+    this.lexer.yy.monitor = this.monitor
+    this.lexer.yy.monitor.shouldSemiColon = function () {return false }
+    
+    
 
     this.parser = new Parser(grammar)
+    this.monitor.setUpTerminals(this.parser.terminals_)
   }
 
   bulidCustomLexFunc():Function {
@@ -267,7 +272,7 @@ class Possum {
   }
 
   tokenize(text:string):Array<string> {
-    // this.monitor.reset()
+    this.monitor.reset()
     this.lexer.setInput(text)
     let tokens:Array<string> = []
     let token = this.lexer.lex()
