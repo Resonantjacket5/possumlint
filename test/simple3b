@@ -13,6 +13,7 @@ pipeline {
         script {
           //foo = docker.image('ubuntu')
           //env.bar = "${foo.imageName()}"
+          foo = "text"
           echo "foo: ${foo.imageName()}"
         }
       }

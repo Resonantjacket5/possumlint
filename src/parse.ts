@@ -118,6 +118,7 @@ class ASTNode {
   }
 }
 
+// Abstract Syntax Tree Literals (or Terminals)
 class ASTLiteral extends ASTNode {
   text: string
   constructor(symbol, yylloc, yytext) {
@@ -142,10 +143,28 @@ class ASTString extends ASTLiteral {
   }
 }
 
+// Abstract Syntax tree 
+class ASTBranch extends ASTNode {
+
+  nodes:Array<ASTNode> = []
+
+  constructor(symbol, yylloc) {
+    super(symbol, yylloc)
+  }
+}
 class ASTExp extends ASTNode {
   constructor(yylloc, node) {
     super('EXP',yylloc)
     this.node = node
+  }
+}
+
+class ASTAssignExp extends ASTBranch {
+  left:any
+  right:any
+
+  constructor(yylloc, left, right) {
+    super('ASSIGN_EXP',yylloc)
   }
 }
 
@@ -188,6 +207,7 @@ class ASTStatements extends ASTNode {
 bark.ASTNode = ASTNode
 bark.ASTNumber = ASTNumber
 bark.ASTFuncExp = ASTFuncExp
+bark.ASTAssignExp = ASTAssignExp
 bark.ASTStatement = ASTStatement
 bark.ASTStatements = ASTStatements
 
@@ -235,6 +255,7 @@ var grammar = {
       ["\\)","return ')'"], //14
       ["\\{","return '{'"],
       ["\\}","return '}'"], //16
+      ["=","return '='"],
       // simplified return string
       [
         "\'.*\'",
@@ -259,9 +280,10 @@ var grammar = {
     // but not all versions aka string wouldn't count
     "STATEMENT": [
       //"ID = EXP",
-      ["FUNC_EXP","$$ = new bark.ASTStatement(@1,$1)"],
+      ["EXP","$$ = new bark.ASTStatement(@1,$1)"],
     ],
     "EXP": [
+      "ASSIGN_EXP",
       "FUNC_EXP",
       // "LITERAL",
       ["NUM"," console.log('yytext',yytext); console.log(this.monitor);$$ = new bark.ASTNumber(@1, yytext)"],
@@ -273,6 +295,10 @@ var grammar = {
     // "MEMBER":[
     //   "ID"
     // ],constructor(yylloc, callerNode, argNode)
+    "ASSIGN_EXP": [
+      //["ID = EXP", "$$ = new bark.ASTAssignExp(@1, $1, $3)"],
+      "ID = EXP",
+    ],
     "FUNC_EXP": [ 
       // not sure if groovy closure ones should be separate or not
       "ID ( EXP ) { STATEMENTS }",
@@ -346,7 +372,7 @@ console.log('parser',parser)
 
 function main () {
 
-  let jenkinsFile = "one ( 12 )\n"
+  let jenkinsFile = "one = 12;\n"
 
   let tokens = lexer.lexus(jenkinsFile)
   console.log(tokens)
