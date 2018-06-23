@@ -66,6 +66,7 @@ export class ASTAssignExp extends ASTBranch {
 
 export class ASTFuncExp extends ASTNode {
   callerNode:any
+  argNode:any
   constructor(yylloc, callerNode, argNode) {
     super('FUNC_EXP', yylloc)
     if (argNode !== undefined) {
