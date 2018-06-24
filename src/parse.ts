@@ -179,59 +179,6 @@ let grammar:Jison.grammar = {
   }
 }
 
-
-// let monitor = new Monitor();
-
-// override built in lex in order to monitor
-//  rules so we can know when to insert semicolons
-function lex () {
-  throw new Error("shoud'nt be called")
-  // r is rule number matched
-  var r = this.next();
-  // monitor.addRuleMatched(r)  
-  if (r) {
-    // console.log(r)
-    // if(r in parser.terminals_) {
-    //   let token = parser.terminals_[r]
-    //   console.log(token)
-    // }
-    return r;
-  } else {
-    return this.lex();
-  }
-}
-
-// deep clone grammar to prevent collisions with parser
-let lexGrammar:Jison.grammar = JSON.parse(JSON.stringify(grammar.lex));
-var lexer = new JisonLex(lexGrammar)
-
-// Takes in text and returns array of tokens
-function lexus (text:string) {
-  let lexer:Jison.Lexer = this
-  lexer.setInput(text)
-  let tokens:Array<number> = []
-  let token:number = lexer.lex()
-  // iterate until no tokens left
-  while(token !== 1) {
-    tokens.push(token)
-    token = lexer.lex()
-  }
-  return tokens
-}
-// lexer.monitor = bark.monitor
-// lexer.lexus = lexus
-// lexer.yy = {}
-// lexer.yy.monitor = monitor
-
-// let parser = new Parser(grammar)
-// parser.lexer.lex = lex
-// // parser.lexer.monitor = bark.monitor
-// monitor.setUpTerminals(parser.terminals_)
-// parser.yy = ast
-// parser.yy.monitor = monitor
-// console.log('parser',parser)
-// Finished all Setup
-// console.log(lexus)
 class Possum {
   monitor:Monitor
   grammar:Jison.grammar
