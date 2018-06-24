@@ -7,8 +7,7 @@
             "dom",
             "es7"
         ],
-        "noImplicitAny": true,
-        "watch": true
+        "noImplicitAny": true
     },
     "include": [
         "./src/**/*"
