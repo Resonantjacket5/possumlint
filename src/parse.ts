@@ -23,10 +23,10 @@ let grammar:Jison.grammar = {
       [['COMMENT'],"[^*\\n]","// eat comment in chunks"], // 
       [['COMMENT'],"\\n","this.popState()"], // 11
       // /\\*, /\*, /*
-      // [['INITIAL'],"/\\*","this.pushState('MULTI_COMMENT')"],
-      // [['MULTI_COMMENT'],"[^\*\\n]","// eat comment in chunks"],
-      // [['MULTI_COMMENT'],"\\n","// eat line"],
-      // [['MULTI_COMMENT'],"\\*/","this.popState()"],
+      [['INITIAL'],"/\\*","this.pushState('MULTI_COMMENT')"],
+      [['MULTI_COMMENT'],"[^*\\n]","// eat comment in chunks"],
+      [['MULTI_COMMENT'],"\\n","// eat line"],
+      [['MULTI_COMMENT'],"\\*/","this.popState()"],
 
 
       ["[a-zA-Z][a-zA-Z0-9]*","return 'ID'"], // 12
@@ -70,9 +70,9 @@ let grammar:Jison.grammar = {
     "EXP": [
       ["ASSIGN_EXP","$$ = new yy.ASTExp(@1, $1)"],
       ["FUNC_EXP","$$ = new yy.ASTExp(@1, $1)"],
-      // "LITERAL",
-      ["NUM"," $$ = new yy.ASTNumber(@1, yytext)"],
-      "STRING",
+      "LITERAL",
+      // ["NUM"," $$ = new yy.ASTNumber(@1, yytext)"],
+      // "STRING",
     ],
     // "CALLER":[
     //   "ID"
@@ -87,14 +87,16 @@ let grammar:Jison.grammar = {
     "FUNC_EXP": [ 
       // not sure if groovy closure ones should be separate or not
       "ID ( EXP ) { STATEMENTS }",
-      "ID { STATEMENTS }",
+      ["ID { STATEMENTS }","$$ = new yy.ASTFuncExp(@1, $1, $3)"],
       //["ID ( EXP )","$$ = new yy.ASTFuncExp(@1,$1,$3)"],
       ["ID ( EXP )","$$ = new yy.ASTFuncExp(@1, $1, $3)"],
-      "ID EXP",
+      ["ID EXP","$$ = new yy.ASTFuncExp(@1, $1, $2)"],
       ["ID ( )","$$ = new yy.ASTFuncExp(@1, $1)"],
     ],
-    // "LITERAL":[
-    //   ["NUM","console.log('num exp'); $$ = new yy.ASTNumber(@1, yytext)"],
+    "LITERAL":[
+      ["NUM","$$ = new yy.ASTNumber(@1, yytext)"],
+      ["STRING","$$ = new yy.ASTString(@1, yytext)"]
+    ]
     //   "STRING",
     // ]
     // "ID":[

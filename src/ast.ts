@@ -87,8 +87,6 @@ export class ASTFuncExp extends ASTNode {
     super('FUNC_EXP', yylloc)
     if (paramNode !== undefined) {
       this.children.paramNode = paramNode
-    } else {
-      this.children.paramNode = null
     }
   }
 
@@ -126,11 +124,27 @@ export class ASTPrinter {
   // visit(node:ASTNode, action:Function) {
     
   // }
+
+
   print(node:any) {
-    console.log(node.toString())
+    this.printNode("", true, node)
+  }
+
+  printNode(prefix:string, isTail:boolean, node:any) {
+    console.log(`${prefix}${(isTail ? "└── " : "├── ")}${node.toString()}`)
     for (let child in node.children) {
       let curNode = node.children[child]
-      this.print(curNode)
+      if (curNode === undefined || curNode === null) {
+        throw new Error(`${curNode} doesnt exit in ${node.children}`)
+      }
+      this.printNode(prefix + (isTail ? "    " : "│   "), false, curNode)
     }
+    // if (
+    //   (node.children !== null) &&
+    //   (node.children !== undefined)
+    // )
+    // if (Object.keys(node.children).length > 0) {
+    //   console.log(`${prefix}${(isTail ? "    " : "│   ")}`)
+    // }
   }
 }
