@@ -17,7 +17,9 @@ class Monitor {
   targetTokenNumbers: Array<string> = []
   symbols: Array<number> = []
 
-  constructor() {}
+  constructor() {
+    console.log('Monitor created')
+  }
 
   reset() {
     this.symbols = []
@@ -26,6 +28,7 @@ class Monitor {
   // return true if previous line number not same
   // as curLineNumber and last token was } or )
   shouldSemiColon(yylloc:Jison.yylloc) {
+    //console.log('called')
     if (this.terminals === []) {
       console.log('ERROR')
       throw new Error('terminals not set')
@@ -38,6 +41,9 @@ class Monitor {
     if (this.targetTokenNumbers.includes(String(lastVal)))  {
       return true
     }
+    // if ( ['ID','STRING',')','}'].includes(lastVal )) {
+    //   return true
+    // }
     return false
   }
 
@@ -59,9 +65,7 @@ class Monitor {
 
   addRuleMatched(rule:number) {
     // if not whitespace add rule
-    if (rule !== 8) {
-      this.symbols.push(rule)
-    }
+    this.symbols.push(rule)
   }
 }
 
@@ -176,14 +180,15 @@ let grammar:Jison.grammar = {
 }
 
 
-let monitor = new Monitor();
+// let monitor = new Monitor();
 
 // override built in lex in order to monitor
 //  rules so we can know when to insert semicolons
 function lex () {
+  throw new Error("shoud'nt be called")
   // r is rule number matched
   var r = this.next();
-  monitor.addRuleMatched(r)  
+  // monitor.addRuleMatched(r)  
   if (r) {
     // console.log(r)
     // if(r in parser.terminals_) {
@@ -198,9 +203,7 @@ function lex () {
 
 // deep clone grammar to prevent collisions with parser
 let lexGrammar:Jison.grammar = JSON.parse(JSON.stringify(grammar.lex));
-var lexer = new JisonLex(lexGrammar)//.lex)
-// lexer.lex = lex
-//lexer.setInput("one ( )\n")
+var lexer = new JisonLex(lexGrammar)
 
 // Takes in text and returns array of tokens
 function lexus (text:string) {
@@ -216,16 +219,16 @@ function lexus (text:string) {
   return tokens
 }
 // lexer.monitor = bark.monitor
-lexer.lexus = lexus
-lexer.yy = {}
-lexer.yy.monitor = monitor
+// lexer.lexus = lexus
+// lexer.yy = {}
+// lexer.yy.monitor = monitor
 
-let parser = new Parser(grammar)
-parser.lexer.lex = lex
-// parser.lexer.monitor = bark.monitor
-monitor.setUpTerminals(parser.terminals_)
-parser.yy = ast
-parser.yy.monitor = monitor
+// let parser = new Parser(grammar)
+// parser.lexer.lex = lex
+// // parser.lexer.monitor = bark.monitor
+// monitor.setUpTerminals(parser.terminals_)
+// parser.yy = ast
+// parser.yy.monitor = monitor
 // console.log('parser',parser)
 // Finished all Setup
 // console.log(lexus)
@@ -236,33 +239,32 @@ class Possum {
   parser:Jison.Parser
   constructor(grammar:Jison.grammar) {
     this.monitor = new Monitor()
-
     // deep clone to prevent modifyingg original
-    let lexGrammar = JSON.parse(JSON.stringify(grammar.lex))
+    let lexGrammar:Jison.grammar = JSON.parse(JSON.stringify(grammar.lex));
     this.lexer = new JisonLex(lexGrammar)
-    // this.lexer.lex = this.bulidCustomLexFunc()
+    // this.lexer.lex =  this.bulidCustomLexFunc()
     this.lexer.yy = ast
-    this.lexer.yy.monitor = this.monitor
+    // this.lexer.yy.monitor = this.monitor
     // this.lexer.yy.monitor.shouldSemiColon = function () {return false }
     
     
 
     this.parser = new Parser(grammar)
-    // this.monitor.setUpTerminals(this.parser.terminals_)
+    this.parser.lexer.lex = this.bulidCustomLexFunc()
+    this.parser.yy = ast
+    this.parser.yy.monitor = this.monitor
+    
+    this.monitor.setUpTerminals(this.parser.terminals_)
+
   }
 
   bulidCustomLexFunc():Function {
     let _this = this
-    let lex = function() {
+    let lex = function():number {
       // r is rule number matched
       var r = this.next();
       _this.monitor.addRuleMatched(r)  
       if (r) {
-        // console.log(r)
-        // if(r in parser.terminals_) {
-        //   let token = parser.terminals_[r]
-        //   console.log(token)
-        // }
         return r;
       } else {
         return this.lex();
@@ -272,7 +274,7 @@ class Possum {
   }
 
   tokenize(text:string):Array<string> {
-    //this.monitor.reset()
+    this.monitor.reset()
     this.lexer.setInput(text)
     let tokens:Array<string> = []
     let token = this.lexer.lex()
@@ -284,19 +286,34 @@ class Possum {
     return tokens
   }
 
+
+  parse(text:string):any {
+    this.monitor.reset()
+    return this.parser.parse(text)
+  }
+
 }
 
+export const possum = new Possum(grammar)
 
 function main () {
 
-  let jenkinsFile = "one = 12;\n"
+  let jenkinsFile = "one ( 12 ) \n "
 
-  let tokens = lexer.lexus(jenkinsFile)
+
+  let tokens = possum.tokenize(jenkinsFile)
   console.log(tokens)
 
-  monitor.reset()
-  let output:any = parser.parse(jenkinsFile)
+  let output = possum.parse(jenkinsFile)
   console.log(output)
+
+  // let tokens = lexer.lexus(jenkinsFile)
+  // console.log(tokens)
+
+
+  // monitor.reset()
+  // let output:any = parser.parse(jenkinsFile)
+  // console.log(output)
 
   // console.log(parser.terminals_)
 }
@@ -304,9 +321,8 @@ function main () {
 main()
 
 // export parser out to other files
-module.exports.parser = parser
-module.exports.lexer = lexer
-// refactor monitor to be part of main
-module.exports.monitor = monitor
+// module.exports.parser = parser
+// module.exports.lexer = lexer
+// // refactor monitor to be part of main
+// module.exports.monitor = monitor
 
-export const possum = new Possum(grammar)
