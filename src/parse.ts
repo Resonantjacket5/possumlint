@@ -1,11 +1,4 @@
-// parse.js
-
-// import file to call the parsing
-
-//const fs = require("fs");
 import * as Jison from "jison"
-//tslint:disable-next-line
-// import * as JisonLex from "jison-lex" 
 import JisonLex = require("jison-lex")
 import * as ast from './ast'
 
@@ -189,12 +182,7 @@ class Possum {
     // deep clone to prevent modifyingg original
     let lexGrammar:Jison.grammar = JSON.parse(JSON.stringify(grammar.lex));
     this.lexer = new JisonLex(lexGrammar)
-    // this.lexer.lex =  this.bulidCustomLexFunc()
     this.lexer.yy = ast
-    // this.lexer.yy.monitor = this.monitor
-    // this.lexer.yy.monitor.shouldSemiColon = function () {return false }
-    
-    
 
     this.parser = new Parser(grammar)
     this.parser.lexer.lex = this.bulidCustomLexFunc()
@@ -205,7 +193,7 @@ class Possum {
 
   }
 
-  bulidCustomLexFunc():Function {
+  bulidCustomLexFunc():any {
     let _this = this
     let lex = function():number {
       // r is rule number matched
@@ -247,29 +235,10 @@ function main () {
 
   let jenkinsFile = "one ( 12 ) \n "
 
-
   let tokens = possum.tokenize(jenkinsFile)
   console.log(tokens)
 
   let output = possum.parse(jenkinsFile)
   console.log(output)
-
-  // let tokens = lexer.lexus(jenkinsFile)
-  // console.log(tokens)
-
-
-  // monitor.reset()
-  // let output:any = parser.parse(jenkinsFile)
-  // console.log(output)
-
-  // console.log(parser.terminals_)
 }
-
 main()
-
-// export parser out to other files
-// module.exports.parser = parser
-// module.exports.lexer = lexer
-// // refactor monitor to be part of main
-// module.exports.monitor = monitor
-
