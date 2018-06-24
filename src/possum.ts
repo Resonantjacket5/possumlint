@@ -68,9 +68,7 @@ class Monitor {
   targetTokenNumbers: Array<string> = []
   symbols: Array<number> = []
 
-  constructor() {
-    console.log('Monitor created')
-  }
+  constructor() {}
 
   reset() {
     this.symbols = []

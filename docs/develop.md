@@ -38,3 +38,6 @@ https://www.tsmean.com/articles/how-to-write-a-typescript-library/
 
 // migrating from javascript to typescript
 https://www.typescriptlang.org/docs/handbook/migrating-from-javascript.html
+
+// how to setup node command line
+https://x-team.com/blog/a-guide-to-creating-a-nodejs-command/

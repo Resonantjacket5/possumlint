@@ -20,6 +20,9 @@
     "lint": "eslint . --ext .js",
     "tsc": "./node_modules/typescript/bin/tsc"
   },
+  "bin": {
+    "possum": "built/parse.js"
+  },
   "author": "Wesley Lin",
   "license": "ISC"
 }

@@ -1,6 +1,7 @@
+#!/usr/bin/env node
 import * as Jison from "jison"
 import { Possum } from './possum'
-
+import * as fs from 'fs'
 let grammar:Jison.grammar = {
   "lex" :{
     "macros": {
@@ -70,7 +71,7 @@ let grammar:Jison.grammar = {
       "ASSIGN_EXP",
       "FUNC_EXP",
       // "LITERAL",
-      ["NUM"," console.log('yytext',yytext); $$ = new yy.ASTNumber(@1, yytext)"],
+      ["NUM"," $$ = new yy.ASTNumber(@1, yytext)"],
       "STRING",
     ],
     // "CALLER":[
@@ -108,15 +109,21 @@ let grammar:Jison.grammar = {
 
 
 export const possum = new Possum(grammar)
-
+const [,, ... args] = process.argv
 function main () {
+  console.log(args)
 
-  let jenkinsFile = "one ( 12 ) \n "
+  // let jenkinsFile = "one ( 12 ) \n "
 
-  let tokens = possum.tokenize(jenkinsFile)
-  console.log(tokens)
+  // let tokens = possum.tokenize(jenkinsFile)
+  // console.log(tokens)
 
-  let output = possum.parse(jenkinsFile)
+  // let output = possum.parse(jenkinsFile)
+  // console.log(output)
+  let filePath = args[0]
+  let text = fs.readFileSync(filePath,'utf8');
+  console.log(possum.tokenize(text))
+  let output = possum.parse(text)
   console.log(output)
 }
 main()
