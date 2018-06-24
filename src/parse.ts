@@ -1,6 +1,5 @@
 import * as Jison from "jison"
 import { Possum } from './possum'
-import * as fs from 'fs'
 import { ASTPrinter } from "./ast";
 let grammar:Jison.grammar = {
   "lex" :{
@@ -86,7 +85,7 @@ let grammar:Jison.grammar = {
     ],
     "FUNC_EXP": [ 
       // not sure if groovy closure ones should be separate or not
-      "ID ( EXP ) { STATEMENTS }",
+      ["ID ( EXP ) { STATEMENTS }","$$ = new yy.ASTFuncExp(@1, $1, $3)"],
       ["ID { STATEMENTS }","$$ = new yy.ASTFuncExp(@1, $1, $3)"],
       //["ID ( EXP )","$$ = new yy.ASTFuncExp(@1,$1,$3)"],
       ["ID ( EXP )","$$ = new yy.ASTFuncExp(@1, $1, $3)"],

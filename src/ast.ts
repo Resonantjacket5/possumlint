@@ -47,7 +47,13 @@ export class ASTNumber extends ASTLiteral {
 
 export class ASTString extends ASTLiteral {
   constructor(yylloc:any, yytext:string) {
-    super('STRING',yylloc, yytext)
+    super('STRING', yylloc, yytext)
+  }
+}
+
+export class ASTID extends ASTLiteral {
+  constructor(yylloc:any, yytext:string) {
+    super('ID', yylloc, yytext)
   }
 }
 
@@ -89,7 +95,22 @@ export class ASTFuncExp extends ASTNode {
       this.children.paramNode = paramNode
     }
   }
+}
 
+export class ASTClosureExp extends ASTBranch {
+  children: {
+    caller: any
+    params: Array<any>
+    stmts: ASTStatements
+  }
+  constructor(yylloc:any, caller:any, stmts:ASTStatements, params:any) {
+    super('CLOS_EXP', yylloc)
+    this.children.caller = caller
+    this.children.stmts = stmts
+    if (params !== undefined) {
+      this.children.params = params
+    }
+  }
 }
 
 export class ASTStatement extends ASTBranch {
