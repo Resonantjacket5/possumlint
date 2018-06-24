@@ -1,6 +1,7 @@
 import * as Jison from "jison"
 import { Possum } from './possum'
 import * as fs from 'fs'
+import { ASTPrinter } from "./ast";
 let grammar:Jison.grammar = {
   "lex" :{
     "macros": {
@@ -57,7 +58,7 @@ let grammar:Jison.grammar = {
      //["STATEMENTS ; EOF"," return $1"],
     ],
     "STATEMENTS": [
-      ["STATEMENTS STATEMENT ;","$$ = new yy.ASTStatements(@1,$3,$1)"],
+      ["STATEMENTS STATEMENT ;","$$ = new yy.ASTStatements(@1,$2,$1)"],
       ["STATEMENT ;","$$ = new yy.ASTStatements(@1,$1)"],
     ],
     // contains different kinda of expressions
@@ -67,8 +68,8 @@ let grammar:Jison.grammar = {
       ["EXP","$$ = new yy.ASTStatement(@1,$1)"],
     ],
     "EXP": [
-      "ASSIGN_EXP",
-      "FUNC_EXP",
+      ["ASSIGN_EXP","$$ = new yy.ASTExp(@1, $1)"],
+      ["FUNC_EXP","$$ = new yy.ASTExp(@1, $1)"],
       // "LITERAL",
       ["NUM"," $$ = new yy.ASTNumber(@1, yytext)"],
       "STRING",
@@ -90,7 +91,7 @@ let grammar:Jison.grammar = {
       //["ID ( EXP )","$$ = new yy.ASTFuncExp(@1,$1,$3)"],
       ["ID ( EXP )","$$ = new yy.ASTFuncExp(@1, $1, $3)"],
       "ID EXP",
-      "ID ( )",
+      ["ID ( )","$$ = new yy.ASTFuncExp(@1, $1)"],
     ],
     // "LITERAL":[
     //   ["NUM","console.log('num exp'); $$ = new yy.ASTNumber(@1, yytext)"],
@@ -108,3 +109,19 @@ let grammar:Jison.grammar = {
 
 
 export const possum = new Possum(grammar)
+
+function main() {
+  let jenkinsFile = "one ( five ( 2 ) ); \n "
+  let tokens = possum.tokenize(jenkinsFile)
+  console.log(tokens)
+
+  let output = possum.parse(jenkinsFile)
+  // console.log(output)
+  // console.log('no')
+
+  let p = new ASTPrinter()
+  p.print(output)
+
+  
+}
+main()

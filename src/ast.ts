@@ -1,10 +1,22 @@
+import { yylloc } from "jison";
+
+interface Node {
+  // contains either more children or empty dictionary
+  children: {
+    [symbol:string]: Node
+  } | {}
+}
+
 class ASTNode {
   // symbol is type of terminal
   symbol: string
   line: number
   column: number
-
-  constructor(symbol:string, yylloc:any) {
+  children: {
+    [symbol:string]: Node
+  } | {} = {}
+  constructor(symbol:string, yylloc:yylloc) {
+    this.symbol = symbol
     this.line = yylloc.first_line
     this.column = yylloc.first_column
   }
@@ -17,8 +29,8 @@ class ASTNode {
 // Abstract Syntax Tree Literals (or Terminals)
 class ASTLiteral extends ASTNode {
   text: string
-  constructor(symbol:string, yylloc:any, yytext:string) {
-    super(symbol,  yylloc)
+  constructor(symbol:string, yylloc:yylloc, yytext:string) {
+    super(symbol, yylloc)
     this.text = yytext
   }
 
@@ -41,17 +53,19 @@ export class ASTString extends ASTLiteral {
 
 // Abstract Syntax tree 
 export class ASTBranch extends ASTNode {
-
-  nodes:Array<ASTNode> = []
-
+  // initialize children
+  children = {}
   constructor(symbol:string, yylloc:any) {
     super(symbol, yylloc)
   }
 }
-export class ASTExp extends ASTNode {
-  node:ASTNode
-  constructor(yylloc:any, node:ASTNode) {
+export class ASTExp extends ASTBranch {
+  children:{
+    'EXP': any
+  }
+  constructor(yylloc:any, node:any) {
     super('EXP',yylloc)
+    this.children.EXP = node
   }
 }
 
@@ -65,48 +79,58 @@ export class ASTAssignExp extends ASTBranch {
 }
 
 export class ASTFuncExp extends ASTNode {
-  callerNode:any
-  argNode:any
-  constructor(yylloc:any, callerNode:any, argNode:any) {
+  children: {
+    caller: ASTExp,
+    paramNode: any
+  }
+  constructor(yylloc:any, callerNode:any, paramNode:any) {
     super('FUNC_EXP', yylloc)
-    if (argNode !== undefined) {
-      this.argNode = argNode
+    if (paramNode !== undefined) {
+      this.children.paramNode = paramNode
     } else {
-      this.argNode = null
+      this.children.paramNode = null
     }
   }
+
 }
 
-export class ASTStatement extends ASTNode {
-  node:any
-  constructor(yyloc:any, node:any) {
+export class ASTStatement extends ASTBranch {
+  children: {
+    EXP: ASTExp
+  } = { EXP: null }
+  constructor(yyloc:any, exp:ASTExp) {
     super('STATEMENT', yyloc)
+    this.children.EXP = exp
   }
 }
 
 // holds either both statements and statement
 //              OR just statement
-export class ASTStatements extends ASTNode {
-  // statements is optional
-  statement:ASTStatement
-  statements:ASTStatements
+export class ASTStatements extends ASTBranch {
+  children: {
+    stmt: ASTStatement
+    stmts: ASTStatements
+  }
   constructor(yyloc:any, statement:ASTStatement, statements:ASTStatements) {
     super('STATEMENTS',yyloc)
+    this.children.stmt = statement
     if (statements !== undefined) {
-      this.statements = statements
-    } else {
-      this.statements = null
+      this.children.stmts = statements
     }
   }
 }
 
 
-class ASTPrinter {
-  visit(node:any, action:Function) {
-    switch(node.symbol) {
-      case 'STATEMENTS': {
-        action(node)
-      }
+export class ASTPrinter {
+  constructor() {}
+  // visit(node:ASTNode, action:Function) {
+    
+  // }
+  print(node:any) {
+    console.log(node.toString())
+    for (let child in node.children) {
+      let curNode = node.children[child]
+      this.print(curNode)
     }
   }
 }

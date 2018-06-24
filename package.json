@@ -15,7 +15,7 @@
   },
   "scripts": {
     "build": "tsc",
-    "describe": "echo 'Test by running test script, lint using eslint'",
+    "trial": "node built/parse.js",
     "test": "node test/test.js",
     "lint": "eslint . --ext .js",
     "tsc": "./node_modules/typescript/bin/tsc"
