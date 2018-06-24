@@ -1,15 +1,16 @@
 import * as Jison from "jison"
 import JisonLex = require("jison-lex")
 import * as ast from './ast'
+import { ASTStatements } from "./ast";
 let Parser = Jison.Parser
 
 export class Possum {
-  monitor:Monitor
+  monitor:TokenMonitor
   grammar:Jison.grammar
   lexer:JisonLex
   parser:Jison.Parser
   constructor(grammar:Jison.grammar) {
-    this.monitor = new Monitor()
+    this.monitor = new TokenMonitor()
     // deep clone to prevent modifyingg original
     let lexGrammar:Jison.grammar = JSON.parse(JSON.stringify(grammar.lex));
     this.lexer = new JisonLex(lexGrammar)
@@ -62,7 +63,9 @@ export class Possum {
 
 
 
-class Monitor {
+
+// Tells parser when to inject semicolon
+class TokenMonitor {
   // terminals: hashmap<number,string>
   terminals: any = []
   targetTokenNumbers: Array<string> = []

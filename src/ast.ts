@@ -139,13 +139,27 @@ export class ASTStatements extends ASTBranch {
   }
 }
 
+class ASTManager {
+  // holds current root stmt to watch
+  stmts:Array<ASTStatements> = []
+  constructor(yy:any) {
+    // setup ast to access ast manager
+    yy.m = this
+  }
+
+  // Add one 'statements'
+  addStmts(node:ASTStatements) {
+    this.stmts.push(node)
+    return node
+  }
+
+  
+
+}
+
 
 export class ASTPrinter {
   constructor() {}
-  // visit(node:ASTNode, action:Function) {
-    
-  // }
-
 
   print(node:any) {
     this.printNode("", true, node)

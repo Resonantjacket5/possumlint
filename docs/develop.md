@@ -46,3 +46,9 @@ https://x-team.com/blog/a-guide-to-creating-a-nodejs-command/
 
 typescript compile on save
 https://stackoverflow.com/questions/29996145/visual-studio-code-compile-on-save
+
+circleci how to deploy to npm
+https://circleci.com/blog/publishing-npm-packages-using-circleci-2-0/
+
+declarative jenkinsfile
+https://jenkins.io/doc/book/pipeline/syntax/
