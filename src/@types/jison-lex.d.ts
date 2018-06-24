@@ -3,7 +3,9 @@ declare module 'jison-lex' {
   class JisonLex {
     yy:any
     lexus:Function
-    constructor(text:string) 
+    lex:Function
+    constructor(grammar:any) 
+    setInput(text:string):void
   }
   export = JisonLex
 }

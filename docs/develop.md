@@ -9,10 +9,12 @@ Command Palette:
 
     ctrl + p
 
+Compile on save:
 
-Useful articles
+    ctrl + shift + b
+    tsc: watch
 
-
+# Useful articles
 
 https://medium.com/@chris_72272/migrating-to-typescript-write-a-declaration-file-for-a-third-party-npm-module-b1f75808ed2
 
@@ -31,3 +33,16 @@ https://tc39.github.io/ecma262/
 
 javascript functions
 https://github.com/estree/estree/blob/master/es5.md
+
+// readme information on how to create a typescript library for later
+https://www.tsmean.com/articles/how-to-write-a-typescript-library/
+
+
+// migrating from javascript to typescript
+https://www.typescriptlang.org/docs/handbook/migrating-from-javascript.html
+
+// how to setup node command line
+https://x-team.com/blog/a-guide-to-creating-a-nodejs-command/
+
+typescript compile on save
+https://stackoverflow.com/questions/29996145/visual-studio-code-compile-on-save
