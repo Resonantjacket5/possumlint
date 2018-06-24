@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 import { possum } from './parse'
 import * as fs from 'fs'
 const [,, ... args] = process.argv

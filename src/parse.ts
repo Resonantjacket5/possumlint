@@ -1,4 +1,3 @@
-#!/usr/bin/env node
 import * as Jison from "jison"
 import { Possum } from './possum'
 import * as fs from 'fs'
