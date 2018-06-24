@@ -1,10 +1,22 @@
+import { yylloc } from "jison";
+
+interface Node {
+  // contains either more children or empty dictionary
+  children: {
+    [symbol:string]: Node
+  } | {}
+}
+
 class ASTNode {
   // symbol is type of terminal
   symbol: string
   line: number
   column: number
-
-  constructor(symbol:string, yylloc:any) {
+  children: {
+    [symbol:string]: Node
+  } | {} = {}
+  constructor(symbol:string, yylloc:yylloc) {
+    this.symbol = symbol
     this.line = yylloc.first_line
     this.column = yylloc.first_column
   }
@@ -17,8 +29,8 @@ class ASTNode {
 // Abstract Syntax Tree Literals (or Terminals)
 class ASTLiteral extends ASTNode {
   text: string
-  constructor(symbol:string, yylloc:any, yytext:string) {
-    super(symbol,  yylloc)
+  constructor(symbol:string, yylloc:yylloc, yytext:string) {
+    super(symbol, yylloc)
     this.text = yytext
   }
 
@@ -35,23 +47,31 @@ export class ASTNumber extends ASTLiteral {
 
 export class ASTString extends ASTLiteral {
   constructor(yylloc:any, yytext:string) {
-    super('STRING',yylloc, yytext)
+    super('STRING', yylloc, yytext)
+  }
+}
+
+export class ASTID extends ASTLiteral {
+  constructor(yylloc:any, yytext:string) {
+    super('ID', yylloc, yytext)
   }
 }
 
 // Abstract Syntax tree 
 export class ASTBranch extends ASTNode {
-
-  nodes:Array<ASTNode> = []
-
+  // initialize children
+  children = {}
   constructor(symbol:string, yylloc:any) {
     super(symbol, yylloc)
   }
 }
-export class ASTExp extends ASTNode {
-  node:ASTNode
-  constructor(yylloc:any, node:ASTNode) {
+export class ASTExp extends ASTBranch {
+  children:{
+    'EXP': any
+  }
+  constructor(yylloc:any, node:any) {
     super('EXP',yylloc)
+    this.children.EXP = node
   }
 }
 
@@ -65,48 +85,87 @@ export class ASTAssignExp extends ASTBranch {
 }
 
 export class ASTFuncExp extends ASTNode {
-  callerNode:any
-  argNode:any
-  constructor(yylloc:any, callerNode:any, argNode:any) {
+  children: {
+    caller: ASTExp,
+    paramNode: any
+  }
+  constructor(yylloc:any, callerNode:any, paramNode:any) {
     super('FUNC_EXP', yylloc)
-    if (argNode !== undefined) {
-      this.argNode = argNode
-    } else {
-      this.argNode = null
+    if (paramNode !== undefined) {
+      this.children.paramNode = paramNode
     }
   }
 }
 
-export class ASTStatement extends ASTNode {
-  node:any
-  constructor(yyloc:any, node:any) {
+export class ASTClosureExp extends ASTBranch {
+  children: {
+    caller: any
+    params: Array<any>
+    stmts: ASTStatements
+  }
+  constructor(yylloc:any, caller:any, stmts:ASTStatements, params:any) {
+    super('CLOS_EXP', yylloc)
+    this.children.caller = caller
+    this.children.stmts = stmts
+    if (params !== undefined) {
+      this.children.params = params
+    }
+  }
+}
+
+export class ASTStatement extends ASTBranch {
+  children: {
+    EXP: ASTExp
+  } = { EXP: null }
+  constructor(yyloc:any, exp:ASTExp) {
     super('STATEMENT', yyloc)
+    this.children.EXP = exp
   }
 }
 
 // holds either both statements and statement
 //              OR just statement
-export class ASTStatements extends ASTNode {
-  // statements is optional
-  statement:ASTStatement
-  statements:ASTStatements
+export class ASTStatements extends ASTBranch {
+  children: {
+    stmt: ASTStatement
+    stmts: ASTStatements
+  }
   constructor(yyloc:any, statement:ASTStatement, statements:ASTStatements) {
     super('STATEMENTS',yyloc)
+    this.children.stmt = statement
     if (statements !== undefined) {
-      this.statements = statements
-    } else {
-      this.statements = null
+      this.children.stmts = statements
     }
   }
 }
 
 
-class ASTPrinter {
-  visit(node:any, action:Function) {
-    switch(node.symbol) {
-      case 'STATEMENTS': {
-        action(node)
+export class ASTPrinter {
+  constructor() {}
+  // visit(node:ASTNode, action:Function) {
+    
+  // }
+
+
+  print(node:any) {
+    this.printNode("", true, node)
+  }
+
+  printNode(prefix:string, isTail:boolean, node:any) {
+    console.log(`${prefix}${(isTail ? "└── " : "├── ")}${node.toString()}`)
+    for (let child in node.children) {
+      let curNode = node.children[child]
+      if (curNode === undefined || curNode === null) {
+        throw new Error(`${curNode} doesnt exit in ${node.children}`)
       }
+      this.printNode(prefix + (isTail ? "    " : "│   "), false, curNode)
     }
+    // if (
+    //   (node.children !== null) &&
+    //   (node.children !== undefined)
+    // )
+    // if (Object.keys(node.children).length > 0) {
+    //   console.log(`${prefix}${(isTail ? "    " : "│   ")}`)
+    // }
   }
 }

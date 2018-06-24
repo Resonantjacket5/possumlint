@@ -10,6 +10,7 @@ const fs = require("fs");
 // const monitor = require('../built/parse').monitor
 // const possum = require('../built/parse').possum
 const possum = require('../built/parse').possum
+const ASTPrinter = require('../built/ast').ASTPrinter
 
 console.log('Run tests:\n--------------')
 
@@ -22,7 +23,7 @@ var files = [
     'test/simple2b',
     // slight regression
     'test/simple3',
-    //'test/simple3b',
+    'test/simple3b',
     //'test/simple3c',
 ]
 
@@ -40,6 +41,10 @@ for (file of files) {
 
     let output = possum.parse(sourceFile)
     console.log(output)
+
+    let p = new ASTPrinter()
+    p.print(output)
+  
 }
 
 console.log('Test:success')

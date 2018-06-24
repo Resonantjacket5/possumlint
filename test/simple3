@@ -3,7 +3,10 @@ pipeline {
     // executes on an executor with the label 'some-label' or 'docker'
     label "some-label || docker";
   };
-
+  /* asdfkjsal
+  asdfklsadjf
+  askldfjklasdfafkl\ asdfas dockera 
+  */
   stages {
     stage("foo") {
       steps {
