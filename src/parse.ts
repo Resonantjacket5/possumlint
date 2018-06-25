@@ -24,6 +24,7 @@ let grammar:Jison.grammar = {
     "EXP": [
       ["ASSIGN_EXP","$$ = new yy.ASTExp(@1, $1)"],
       ["FUNC_EXP","$$ = new yy.ASTExp(@1, $1)"],
+      "MEMBER",
       "LITERAL",
       // ["NUM"," $$ = new yy.ASTNumber(@1, yytext)"],
       // "STRING",
