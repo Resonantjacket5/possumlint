@@ -16,8 +16,8 @@ export const lex = {
     //["[ \\r\\t]+","/* skip whitespace */"],
     //["\\n","console.log('newline '+yylloc.first_line);if(bark.monitor.shouldSemiColon(yylloc.first_line)){console.log('semicolon')} /*skip newlines   */"],
     [['INITIAL'],"//","this.pushState('COMMENT')"],
-    [['COMMENT'],"[^*\\n]","// eat comment in chunks"], // 
-    [['COMMENT'],"\\n","this.popState()"], // 11
+    [['COMMENT'],"[^*\\n]","// eat comment in chunks"],
+    [['COMMENT'],"\\n","this.popState()"],
     // /\\*, /\*, /*
     [['INITIAL'],"/\\*","this.pushState('MULTI_COMMENT')"],
     [['MULTI_COMMENT'],"[^*\\n]","// eat comment in chunks"],
@@ -25,7 +25,7 @@ export const lex = {
     [['MULTI_COMMENT'],"\\*/","this.popState()"],
 
 
-    ["[a-zA-Z][a-zA-Z0-9]*","return 'ID'"], // 12
+    ["[a-zA-Z][a-zA-Z0-9]*","return 'ID'"],
     // ["[{ASCII}][{ALNUM}]*","console.log(yytext);return 'ID'"],
     // ["[_|$|ASCII][ALNUM]*","return 'ID'"],
     ["[1-9][0-9]*", "return 'NUM';"],
@@ -33,9 +33,11 @@ export const lex = {
     [";", "return ';'"],
     ["\\.", "return '.'"],
     ["\\(","return '('"], 
-    ["\\)","return ')'"], //14
+    ["\\)","return ')'"],
     ["\\{","return '{'"],
-    ["\\}","return '}'"], //16
+    ["\\}","return '}'"],
+    ["\\[", "return '['"],
+    ["\\]", "return ']'"],
     ["=","return '='"],
     // simplified return string
     [

@@ -2,4 +2,6 @@ item {
   second.first(3)
   one.two.three = two.three.four.five
   third()
+
+  two[key] = seven
 }
