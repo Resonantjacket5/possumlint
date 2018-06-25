@@ -52,3 +52,6 @@ https://circleci.com/blog/publishing-npm-packages-using-circleci-2-0/
 
 declarative jenkinsfile
 https://jenkins.io/doc/book/pipeline/syntax/
+
+example of ast
+https://astexplorer.net

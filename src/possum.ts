@@ -67,7 +67,7 @@ export class Possum {
 // Tells parser when to inject semicolon
 class TokenMonitor {
   // terminals: hashmap<number,string>
-  terminals: any = []
+  terminals_: any = []
   targetTokenNumbers: Array<string> = []
   symbols: Array<number> = []
 
@@ -81,7 +81,7 @@ class TokenMonitor {
   // as curLineNumber and last token was } or )
   shouldSemiColon(yylloc:Jison.yylloc) {
     //console.log('called')
-    if (this.terminals === []) {
+    if (this.terminals_ === []) {
       console.log('ERROR')
       throw new Error('terminals not set')
     }
@@ -98,14 +98,14 @@ class TokenMonitor {
 
   // pass in dictionar of terminals
   // terminals: hashmap<number,string>
-  setUpTerminals(terminals:Jison.numToString) {
-    this.terminals = terminals
+  setUpTerminals(terminals_:Jison.numToString) {
+    this.terminals_ = terminals_
     this.targetTokenNumbers = []
     let targetTerminals = ['ID','STRING',')','}']
     // for each target terminal
     //for (let targetTerminal of targetTerminals) {
-    for (let terminalNumber in terminals) {
-      let curTerminal = terminals[terminalNumber]
+    for (let terminalNumber in terminals_) {
+      let curTerminal = terminals_[terminalNumber]
       if (targetTerminals.includes(curTerminal)) {
         this.targetTokenNumbers.push( terminalNumber)
       }
