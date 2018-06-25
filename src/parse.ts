@@ -36,16 +36,20 @@ let grammar:Jison.grammar = {
     // ],constructor(yylloc, callerNode, argNode)
     "ASSIGN_EXP": [
       //["ID = EXP", "$$ = new yy.ASTAssignExp(@1, $1, $3)"],
-      "ID = EXP",
+      "MEMBER = EXP",
     ],
     "FUNC_EXP": [ 
       // not sure if groovy closure ones should be separate or not
-      ["ID ( EXP ) { STATEMENTS }","$$ = new yy.ASTFuncExp(@1, $1, $3)"],
-      ["ID { STATEMENTS }","$$ = new yy.ASTFuncExp(@1, $1, $3)"],
+      ["MEMBER ( EXP ) { STATEMENTS }","$$ = new yy.ASTFuncExp(@1, $1, $3)"],
+      ["MEMBER { STATEMENTS }","$$ = new yy.ASTFuncExp(@1, $1, $3)"],
       //["ID ( EXP )","$$ = new yy.ASTFuncExp(@1,$1,$3)"],
-      ["ID ( EXP )","$$ = new yy.ASTFuncExp(@1, $1, $3)"],
-      ["ID EXP","$$ = new yy.ASTFuncExp(@1, $1, $2)"],
-      ["ID ( )","$$ = new yy.ASTFuncExp(@1, $1)"],
+      ["MEMBER ( EXP )","$$ = new yy.ASTFuncExp(@1, $1, $3)"],
+      ["MEMBER EXP","$$ = new yy.ASTFuncExp(@1, $1, $2)"],
+      ["MEMBER ( )","$$ = new yy.ASTFuncExp(@1, $1)"],
+    ],
+    "MEMBER":[
+      "MEMBER . MEMBER ",
+      "ID",
     ],
     "LITERAL":[
       ["NUM","$$ = new yy.ASTNumber(@1, yytext)"],

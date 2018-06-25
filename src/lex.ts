@@ -31,7 +31,7 @@ export const lex = {
     ["[1-9][0-9]*", "return 'NUM';"],
 
     [";", "return ';'"],
-
+    ["\\.", "return '.'"],
     ["\\(","return '('"], 
     ["\\)","return ')'"], //14
     ["\\{","return '{'"],
