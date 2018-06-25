@@ -51,7 +51,7 @@ jobs:
       - run: yarn run tsc # no ignoring tsc warning
       # https://yarnpkg.com/en/docs/cli/version
       # npm version patch
-      - run: yarn version --patch
+      - run: yarn version --patch --non-interactive
       - run: cat package.json
       - run:
           name: Authenticate with registry
