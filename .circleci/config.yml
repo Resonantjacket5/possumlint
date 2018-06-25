@@ -22,6 +22,7 @@ jobs:
           # fallback to using the latest cache if no exact match is found
           - v1-dependencies-
 
+      # tell yarn to install all dev dependencies
       - run: yarn install --dev
 
       - save_cache:
@@ -29,6 +30,44 @@ jobs:
             - node_modules
           key: v1-dependencies-{{ checksum "package.json" }}
       
+      # run tsc to compile js into ts
       - run: yarn run tsc || true
+
       # run tests!
       - run: yarn test
+
+  deploy:
+    docker:
+      # specify the version you desire here
+      - image: circleci/node:8.11-stretch-browsers
+
+    working_directory: ~/repo
+
+    steps:
+      - checkout
+
+      # tell yarn to install all dev dependencies
+      - run: yarn install --dev
+      - run: yarn run tsc # no ignoring tsc warning
+      # https://yarnpkg.com/en/docs/cli/version
+      # npm version patch
+      - run: yarn version --patch
+      - run: cat package.json
+      - run:
+          name: Authenticate with registry
+          command: echo "//registry.npmjs.org/:_authToken=$npm_TOKEN" > ~/repo/.npmrc
+      - run:
+          name: Publish package
+          command: npm publish
+
+workflows:
+  version: 2
+  build_and_deploy:
+    jobs:
+      - build
+      - deploy:
+          requires:
+            - build
+          filters:
+            branches:
+              only: master

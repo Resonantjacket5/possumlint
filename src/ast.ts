@@ -65,13 +65,16 @@ export class ASTBranch extends ASTNode {
     super(symbol, yylloc)
   }
 }
+
 export class ASTExp extends ASTBranch {
-  children:{
-    'EXP': any
-  }
+  // children:{
+  //   'EXP': any
+  // }
+  exp:any
   constructor(yylloc:any, node:any) {
     super('EXP',yylloc)
-    this.children.EXP = node
+    // this.children.EXP = node
+    this.exp = node
   }
 }
 
@@ -113,6 +116,20 @@ export class ASTClosureExp extends ASTBranch {
   }
 }
 
+// export class ASTClosureExp2 extends ASTBranch {
+//   callee: any
+//   params: Array<any>
+//   stmts: ASTStatements
+//   constructor(yylloc:any, caller:any, stmts:ASTStatements, params:any) {
+//     super('CLOS_EXP', yylloc)
+//     this.callee = caller
+//     this.children.stmts = stmts
+//     if (params !== undefined) {
+//       this.children.params = params
+//     }
+//   }
+// }
+
 export class ASTStatement extends ASTBranch {
   children: {
     EXP: ASTExp
@@ -139,13 +156,35 @@ export class ASTStatements extends ASTBranch {
   }
 }
 
+// export class ASTStatements2 extends ASTBranch {
+//   // TODO: better word
+//   stmtList: Array<ASTStatement>
+//   constructor(yyloc:any, statement:ASTStatement, statements:ASTStatements) {
+//     super('STATEMENTS',yyloc)
+//   }
+// }
+
+class ASTManager {
+  // holds current root stmt to watch
+  stmts:Array<ASTStatements> = []
+  constructor(yy:any) {
+    // setup ast to access ast manager
+    yy.m = this
+  }
+
+  // Add one 'statements'
+  addStmts(node:ASTStatements) {
+    this.stmts.push(node)
+    return node
+  }
+
+  
+
+}
+
 
 export class ASTPrinter {
   constructor() {}
-  // visit(node:ASTNode, action:Function) {
-    
-  // }
-
 
   print(node:any) {
     this.printNode("", true, node)

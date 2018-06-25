@@ -1,64 +1,19 @@
 import * as Jison from "jison"
 import { Possum } from './possum'
 import { ASTPrinter } from "./ast";
+import { lex } from "./lex";
 let grammar:Jison.grammar = {
-  "lex" :{
-    "macros": {
-      "ASCII": "a-zA-Z", //1
-      "DIGIT": "0-9",
-      "ALNUM": "{ASCII}{DIGIT}"
-    },
-    "startConditions":{
-      "COMMENT":"// single line comments",
-      "MULTI_COMMENT": "/* multi-line comments",//5
-    },
-    "rules":[
-      ["$","return 'EOF'"], // 7?
-      ["[\\s]+","if(yy.monitor.shouldSemiColon(yylloc)) {return ';'; } // whitespace"], //8
-      //print('whitespace');console.log(yylloc);console.log('semi '+bark.monitor.shouldSemiColon(yylloc))
-      //["[ \\r\\t]+","/* skip whitespace */"],
-      //["\\n","console.log('newline '+yylloc.first_line);if(bark.monitor.shouldSemiColon(yylloc.first_line)){console.log('semicolon')} /*skip newlines   */"],
-      [['INITIAL'],"//","this.pushState('COMMENT')"],
-      [['COMMENT'],"[^*\\n]","// eat comment in chunks"], // 
-      [['COMMENT'],"\\n","this.popState()"], // 11
-      // /\\*, /\*, /*
-      [['INITIAL'],"/\\*","this.pushState('MULTI_COMMENT')"],
-      [['MULTI_COMMENT'],"[^*\\n]","// eat comment in chunks"],
-      [['MULTI_COMMENT'],"\\n","// eat line"],
-      [['MULTI_COMMENT'],"\\*/","this.popState()"],
-
-
-      ["[a-zA-Z][a-zA-Z0-9]*","return 'ID'"], // 12
-      // ["[{ASCII}][{ALNUM}]*","console.log(yytext);return 'ID'"],
-      // ["[_|$|ASCII][ALNUM]*","return 'ID'"],
-      ["[1-9][0-9]*", "return 'NUM';"],
-
-      [";", "return ';'"],
-
-      ["\\(","return '('"], 
-      ["\\)","return ')'"], //14
-      ["\\{","return '{'"],
-      ["\\}","return '}'"], //16
-      ["=","return '='"],
-      // simplified return string
-      [
-        "\'.*\'",
-        "return 'STRING'",
-      ],
-      [
-        "\".*\"",
-        "return 'STRING'",
-      ],
-    ]
-  },
+  "lex" :lex,
   "bnf": {
     "ROOT" :[ 
-      ["STATEMENTS EOF"," return $1"],
+      ["STATEMENTS EOF"," return new yy.ASTStatements(@1,$1)"],
      //["STATEMENTS ; EOF"," return $1"],
     ],
     "STATEMENTS": [
-      ["STATEMENTS STATEMENT ;","$$ = new yy.ASTStatements(@1,$2,$1)"],
-      ["STATEMENT ;","$$ = new yy.ASTStatements(@1,$1)"],
+      ["STATEMENTS STATEMENT ;","$$ = $1; $1.push($2)"],
+      ["STATEMENT ;","$$ = [$1]"],
+      // new yy.ASTStatements(@1,$2,$1)
+      // new yy.ASTStatements(@1,$1)
     ],
     // contains different kinda of expressions
     // but not all versions aka string wouldn't count
@@ -108,16 +63,15 @@ let grammar:Jison.grammar = {
   }
 }
 
-
 export const possum = new Possum(grammar)
 
 function main() {
-  let jenkinsFile = "one ( five ( 2 ) ); \n "
+  let jenkinsFile = "one ( nest( 4) ); two(2); \n "
   let tokens = possum.tokenize(jenkinsFile)
   console.log(tokens)
 
   let output = possum.parse(jenkinsFile)
-  // console.log(output)
+  console.log(output)
   // console.log('no')
 
   let p = new ASTPrinter()
