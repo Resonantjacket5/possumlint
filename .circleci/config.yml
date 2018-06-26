@@ -51,6 +51,7 @@ jobs:
       - run: yarn run tsc # no ignoring tsc warning
       # https://yarnpkg.com/en/docs/cli/version
       # - run: yarn version --patch
+      - run: git config user.email "wesleylin625@gmail.com"; git config user.name "Wesley Lin"
       - run: npm version patch
       - run: cat package.json
       - run:
