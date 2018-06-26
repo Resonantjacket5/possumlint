@@ -48,6 +48,11 @@ let grammar:Jison.grammar = {
       ["MEMBER EXP","$$ = new yy.ASTFuncExp(@1, $1, $2)"],
       ["MEMBER ( )","$$ = new yy.ASTFuncExp(@1, $1)"],
     ],
+    // EXPS? 
+    "ARGUMENTS":[
+      "ARGUMENTS , EXP",
+      "EXP"
+    ],
     "MEMBER":[
       "MEMBER [ MEMBER ]",
       "MEMBER . MEMBER ",
