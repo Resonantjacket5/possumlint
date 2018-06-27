@@ -5,9 +5,8 @@ import { lex } from "./lex";
 let grammar:Jison.grammar = {
   "lex" :lex,
   "bnf": {
-    "ROOT" :[ 
+    "ROOT" :[
       ["STATEMENTS EOF"," return new yy.Block(@1,$1)"],
-     //["STATEMENTS ; EOF"," return $1"],
     ],
     // Returns Array<STATEMENT>
     // with STATEMENT as base rule
@@ -15,8 +14,6 @@ let grammar:Jison.grammar = {
     "STATEMENTS": [
       ["STATEMENTS STATEMENT ;","$$ = $1; $1.push($2)"],
       ["STATEMENT ;","$$ = [$1]"],
-      // new yy.ASTStatements(@1,$2,$1)
-      // new yy.ASTStatements(@1,$1)
     ],
     // Currently Statement just consist of expression
     "STATEMENT": [
@@ -30,11 +27,6 @@ let grammar:Jison.grammar = {
       // ["NUM"," $$ = new yy.ASTNumber(@1, yytext)"],
       // "STRING",
     ],
-    // "CALLER":[
-    //   "ID"
-    // ],
-    // "MEMBER":[
-    //   "ID"
     // ],constructor(yylloc, callerNode, argNode)
     "ASSIGN_EXP": [
       //["ID = EXP", "$$ = new yy.ASTAssignExp(@1, $1, $3)"],
@@ -42,12 +34,12 @@ let grammar:Jison.grammar = {
     ],
     "FUNC_EXP": [ 
       // not sure if groovy closure ones should be separate or not
-      ["MEMBER ( ARGS ) { STATEMENTS }","$$ = new yy.ASTFuncExp(@1, $1, $3)"],
-      ["MEMBER { STATEMENTS }","$$ = new yy.ASTFuncExp(@1, $1, $3)"],
+      ["MEMBER ( ARGS ) { STATEMENTS }","$$ = new yy.CallExp(@1, $1, $3,$5)"],
+      ["MEMBER { STATEMENTS }","$$ = new yy.CallExp(@1, $1, $3)"],
       //["ID ( EXP )","$$ = new yy.ASTFuncExp(@1,$1,$3)"],
-      ["MEMBER ( ARGS )","$$ = new yy.ASTFuncExp(@1, $1, $3)"],
-      ["MEMBER ARGS","$$ = new yy.ASTFuncExp(@1, $1, $2)"],
-      ["MEMBER ( )","$$ = new yy.ASTFuncExp(@1, $1)"],
+      ["MEMBER ( ARGS )","$$ = new yy.CallExp(@1, $1, $3)"],
+      ["MEMBER ARGS","$$ = new yy.CallExp(@1, $1, $2)"],
+      ["MEMBER ( )","$$ = new yy.CallExp(@1, $1)"],
     ],
     // Returns Array<EXP> value
     // with EXP as the base rule repeatedly matched 

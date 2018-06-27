@@ -34,14 +34,20 @@ export class MemExp extends ASTNode {
   }
 }
 
+// There are 4 types of CallExp
+// 1) clock() no args
+// 2) clock('one') w/ args
+// 3) clock{ show() } w/ body 
+// 4) clock('weird') { really? } both args and body
 export class CallExp extends ASTNode {
   constructor(
     yylloc:yylloc, 
     public callee:any, 
-    public args:Array<any>,
-    public body:Block
+    public args:Array<any> = [],
+    public body?:Block
   ) {
     super('CallExp', yylloc)
+
   }
 }
 
@@ -52,7 +58,7 @@ export class Stmt extends ASTNode {
 }
 
 export class Block extends ASTNode {
-  constructor(yylloc:yylloc, public args:Array<Stmt>) {
+  constructor(yylloc:yylloc, public body:Array<Stmt>) {
     super('Block', yylloc)
   }
 }
