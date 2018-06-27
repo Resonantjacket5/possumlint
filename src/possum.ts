@@ -101,7 +101,7 @@ class TokenMonitor {
   setUpTerminals(terminals_:Jison.numToString) {
     this.terminals_ = terminals_
     this.targetTokenNumbers = []
-    let targetTerminals = ['ID','STRING',')','}']
+    let targetTerminals = ['ID','STRING','NUM',')','}']
     // for each target terminal
     //for (let targetTerminal of targetTerminals) {
     for (let terminalNumber in terminals_) {

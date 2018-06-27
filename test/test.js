@@ -25,6 +25,7 @@ var files = [
     'test/simple3',
     'test/simple3b',
     //'test/simple3c',
+    'test/property-access',
 ]
 
 
@@ -42,8 +43,8 @@ for (file of files) {
     let output = possum.parse(sourceFile)
     console.log(output)
 
-    let p = new ASTPrinter()
-    p.print(output)
+    // let p = new ASTPrinter()
+    // p.print(output)
   
 }
 
