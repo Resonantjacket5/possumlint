@@ -20,23 +20,17 @@ let grammar:Jison.grammar = {
       ["EXP","$$ = new yy.Stmt(@1,$1)"],
     ],
     "EXP": [
-      ["ASSIGN_EXP","$$ = new yy.ASTExp(@1, $1)"],
-      ["FUNC_EXP","$$ = new yy.ASTExp(@1, $1)"],
+      ["ASSIGN_EXP","$$ = $1"],
+      ["FUNC_EXP","$$ = $1"],
       "MEMBER",
       "LITERAL",
-      // ["NUM"," $$ = new yy.ASTNumber(@1, yytext)"],
-      // "STRING",
     ],
-    // ],constructor(yylloc, callerNode, argNode)
     "ASSIGN_EXP": [
-      //["ID = EXP", "$$ = new yy.ASTAssignExp(@1, $1, $3)"],
-      "MEMBER = EXP",
+      ["MEMBER = EXP","$$ = new yy.AssignExp(@1, $1, $3)"],
     ],
     "FUNC_EXP": [ 
-      // not sure if groovy closure ones should be separate or not
       ["MEMBER ( ARGS ) { STATEMENTS }","$$ = new yy.CallExp(@1, $1, $3,$5)"],
-      ["MEMBER { STATEMENTS }","$$ = new yy.CallExp(@1, $1, $3)"],
-      //["ID ( EXP )","$$ = new yy.ASTFuncExp(@1,$1,$3)"],
+      ["MEMBER { STATEMENTS }","$$ = new yy.CallExp(@1, $1, undefined, $3)"],
       ["MEMBER ( ARGS )","$$ = new yy.CallExp(@1, $1, $3)"],
       ["MEMBER ARGS","$$ = new yy.CallExp(@1, $1, $2)"],
       ["MEMBER ( )","$$ = new yy.CallExp(@1, $1)"],

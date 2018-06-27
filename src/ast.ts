@@ -12,9 +12,9 @@ class ASTNode {
   symbol: string
   line: number
   column: number
-  children: {
-    [symbol:string]: Node
-  } | {} = {}
+  // children: {
+  //   [symbol:string]: Node
+  // } | {} = {}
   constructor(symbol:string, yylloc:yylloc) {
     this.symbol = symbol
     this.line = yylloc.first_line
@@ -48,6 +48,14 @@ export class CallExp extends ASTNode {
   ) {
     super('CallExp', yylloc)
 
+  }
+
+}
+
+export class AssignExp extends ASTNode {
+  operator = '='
+  constructor(yylloc:yylloc, public left:any, public right:any) {
+    super('AssignExp', yylloc)
   }
 }
 
