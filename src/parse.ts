@@ -9,16 +9,17 @@ let grammar:Jison.grammar = {
       ["STATEMENTS EOF"," return new yy.ASTStatements(@1,$1)"],
      //["STATEMENTS ; EOF"," return $1"],
     ],
+    // Returns Array<STATEMENT>
+    // with STATEMENT as base rule
+    // ex:  [STMT;] STMT; STMT; => [STMTS STMT;] STMT; => [STMTS STMT;] => STMT
     "STATEMENTS": [
       ["STATEMENTS STATEMENT ;","$$ = $1; $1.push($2)"],
       ["STATEMENT ;","$$ = [$1]"],
       // new yy.ASTStatements(@1,$2,$1)
       // new yy.ASTStatements(@1,$1)
     ],
-    // contains different kinda of expressions
-    // but not all versions aka string wouldn't count
+    // Currently Statement just consist of expression
     "STATEMENT": [
-      //"ID = EXP",
       ["EXP","$$ = new yy.ASTStatement(@1,$1)"],
     ],
     "EXP": [
@@ -41,22 +42,25 @@ let grammar:Jison.grammar = {
     ],
     "FUNC_EXP": [ 
       // not sure if groovy closure ones should be separate or not
-      ["MEMBER ( EXP ) { STATEMENTS }","$$ = new yy.ASTFuncExp(@1, $1, $3)"],
+      ["MEMBER ( ARGS ) { STATEMENTS }","$$ = new yy.ASTFuncExp(@1, $1, $3)"],
       ["MEMBER { STATEMENTS }","$$ = new yy.ASTFuncExp(@1, $1, $3)"],
       //["ID ( EXP )","$$ = new yy.ASTFuncExp(@1,$1,$3)"],
-      ["MEMBER ( EXP )","$$ = new yy.ASTFuncExp(@1, $1, $3)"],
-      ["MEMBER EXP","$$ = new yy.ASTFuncExp(@1, $1, $2)"],
+      ["MEMBER ( ARGS )","$$ = new yy.ASTFuncExp(@1, $1, $3)"],
+      ["MEMBER ARGS","$$ = new yy.ASTFuncExp(@1, $1, $2)"],
       ["MEMBER ( )","$$ = new yy.ASTFuncExp(@1, $1)"],
     ],
-    // EXPS? 
-    "ARGUMENTS":[
-      "ARGUMENTS , EXP",
-      "EXP"
+    // Returns Array<EXP> value
+    // with EXP as the base rule repeatedly matched 
+    // ex:  [EXP], EXP, EXP => [ARGS, EXP], EXP => [ARGS, EXP] => ARGS
+    "ARGS":[
+      ["ARGS , EXP", "$$ = $1; $1.push($3)"],
+      ["EXP","$$ = [$1]"]
     ],
+    // ex: [ID] . ID . ID => [MEMBER . ID] . ID => [MEMBER] ID
     "MEMBER":[
-      "MEMBER [ MEMBER ]",
-      "MEMBER . MEMBER ",
-      "ID",
+      ["MEMBER . ID ", "$$ = new yy.MemExp(@1, $1, $3)"],
+      "MEMBER [ ID ]",
+      ["ID", "$$ = new yy.MemExp(@1, $1) "]
     ],
     "LITERAL":[
       ["NUM","$$ = new yy.ASTNumber(@1, yytext)"],
@@ -77,12 +81,13 @@ let grammar:Jison.grammar = {
 export const possum = new Possum(grammar)
 
 function main() {
-  let jenkinsFile = "one ( nest( 4) ); two(2); \n "
+  let jenkinsFile = "one.two.three.four \n "
   let tokens = possum.tokenize(jenkinsFile)
   console.log(tokens)
 
   let output = possum.parse(jenkinsFile)
   console.log(output)
+  console.log('j',output.children.stmt[0].children)
   // console.log('no')
 
   let p = new ASTPrinter()
