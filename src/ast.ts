@@ -34,15 +34,19 @@ export class MemExp extends ASTNode {
   }
 }
 
+<<<<<<< HEAD
 // There are 4 types of CallExp
 // 1) clock() no args
 // 2) clock('one') w/ args
 // 3) clock{ show() } w/ body 
 // 4) clock('weird') { really? } both args and body
+=======
+>>>>>>> master
 export class CallExp extends ASTNode {
   constructor(
     yylloc:yylloc, 
     public callee:any, 
+<<<<<<< HEAD
     public args:Array<any> = [],
     public body?:Block
   ) {
@@ -56,6 +60,12 @@ export class AssignExp extends ASTNode {
   operator = '='
   constructor(yylloc:yylloc, public left:any, public right:any) {
     super('AssignExp', yylloc)
+=======
+    public args:Array<any>,
+    public body:Block
+  ) {
+    super('CallExp', yylloc)
+>>>>>>> master
   }
 }
 
@@ -66,7 +76,11 @@ export class Stmt extends ASTNode {
 }
 
 export class Block extends ASTNode {
+<<<<<<< HEAD
   constructor(yylloc:yylloc, public body:Array<Stmt>) {
+=======
+  constructor(yylloc:yylloc, public args:Array<Stmt>) {
+>>>>>>> master
     super('Block', yylloc)
   }
 }
