@@ -6,7 +6,7 @@ let grammar:Jison.grammar = {
   "lex" :lex,
   "bnf": {
     "ROOT" :[ 
-      ["STATEMENTS EOF"," return new yy.ASTStatements(@1,$1)"],
+      ["STATEMENTS EOF"," return new yy.Block(@1,$1)"],
      //["STATEMENTS ; EOF"," return $1"],
     ],
     // Returns Array<STATEMENT>
@@ -20,7 +20,7 @@ let grammar:Jison.grammar = {
     ],
     // Currently Statement just consist of expression
     "STATEMENT": [
-      ["EXP","$$ = new yy.ASTStatement(@1,$1)"],
+      ["EXP","$$ = new yy.Stmt(@1,$1)"],
     ],
     "EXP": [
       ["ASSIGN_EXP","$$ = new yy.ASTExp(@1, $1)"],
@@ -87,7 +87,6 @@ function main() {
 
   let output = possum.parse(jenkinsFile)
   console.log(output)
-  console.log('j',output.children.stmt[0].children)
   // console.log('no')
 
   let p = new ASTPrinter()

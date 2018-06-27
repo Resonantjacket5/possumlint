@@ -46,7 +46,7 @@ export class CallExp extends ASTNode {
 }
 
 export class Stmt extends ASTNode {
-  constructor(yylloc:yylloc, public callee:any, public args:Array<any>) {
+  constructor(yylloc:yylloc, public exp:any) {
     super('Stmt', yylloc)
   }
 }
