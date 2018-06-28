@@ -15,7 +15,6 @@ let grammar:Jison.grammar = {
       ["STATEMENTS STATEMENT ;","$$ = $1; $1.push($2)"],
       ["STATEMENT ;","$$ = [$1]"],
     ],
-    // Currently Statement just consist of expression
     "STATEMENT": [
       ["EXP","$$ = new yy.Stmt(@1,$1)"],
     ],
@@ -52,15 +51,6 @@ let grammar:Jison.grammar = {
       ["NUM","$$ = new yy.ASTNumber(@1, yytext)"],
       ["STRING","$$ = new yy.ASTString(@1, yytext)"]
     ]
-    //   "STRING",
-    // ]
-    // "ID":[
-    //   "ID"
-    // ]
-    // https://tc39.github.io/ecma262/#sec-property-accessors
-    // "ID":[ 
-    //   "ID . ID"
-    // ]
   }
 }
 
