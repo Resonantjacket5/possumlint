@@ -10,7 +10,6 @@ const fs = require("fs");
 // const monitor = require('../built/parse').monitor
 // const possum = require('../built/parse').possum
 const possum = require('../built/parse').possum
-const ASTPrinter = require('../built/ast').ASTPrinter
 const Printer = require('../built/ast').Printer
 
 console.log('Run tests:\n--------------')

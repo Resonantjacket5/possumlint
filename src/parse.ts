@@ -1,6 +1,5 @@
 import * as Jison from "jison"
 import { Possum } from './possum'
-import { ASTPrinter, Printer } from "./ast";
 import { lex } from "./lex";
 let grammar:Jison.grammar = {
   "lex" :lex,

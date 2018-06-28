@@ -163,30 +163,3 @@ export class Printer {
     }
   }
 }
-
-
-export class ASTPrinter {
-  constructor() {}
-
-  print(node:any) {
-    this.printNode("", true, node)
-  }
-
-  printNode(prefix:string, isTail:boolean, node:any) {
-    console.log(`${prefix}${(isTail ? "└── " : "├── ")}${node.toString()}`)
-    for (let child in node.children) {
-      let curNode = node.children[child]
-      if (curNode === undefined || curNode === null) {
-        throw new Error(`${curNode} doesnt exit in ${node.children}`)
-      }
-      this.printNode(prefix + (isTail ? "    " : "│   "), false, curNode)
-    }
-    // if (
-    //   (node.children !== null) &&
-    //   (node.children !== undefined)
-    // )
-    // if (Object.keys(node.children).length > 0) {
-    //   console.log(`${prefix}${(isTail ? "    " : "│   ")}`)
-    // }
-  }
-}
