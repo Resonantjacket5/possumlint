@@ -1,6 +1,6 @@
 import * as Jison from "jison"
 import { Possum } from './possum'
-import { ASTPrinter } from "./ast";
+import { ASTPrinter, Printer } from "./ast";
 import { lex } from "./lex";
 let grammar:Jison.grammar = {
   "lex" :lex,
@@ -43,13 +43,13 @@ let grammar:Jison.grammar = {
     ],
     // ex: [ID] . ID . ID => [MEMBER . ID] . ID => [MEMBER] ID
     "MEMBER":[
-      ["MEMBER . ID ", "$$ = new yy.MemExp(@1, $1, $3)"],
+      ["MEMBER . ID ", "$$ = new yy.MemExp(@1, $1, new yy.ID(@3,$3))"],
       "MEMBER [ ID ]",
-      ["ID", "$$ = new yy.MemExp(@1, $1) "]
+      ["ID", "$$ = new yy.ID(@1, $1) "]
     ],
     "LITERAL":[
-      ["NUM","$$ = new yy.ASTNumber(@1, yytext)"],
-      ["STRING","$$ = new yy.ASTString(@1, yytext)"]
+      ["NUM","$$ = new yy.Number(@1, yytext)"],
+      ["STRING","$$ = new yy.String(@1, yytext)"]
     ]
   }
 }
@@ -57,7 +57,7 @@ let grammar:Jison.grammar = {
 export const possum = new Possum(grammar)
 
 function main() {
-  let jenkinsFile = "one.two.three.four \n "
+  let jenkinsFile = "one( 5); two(7) \n "
   let tokens = possum.tokenize(jenkinsFile)
   console.log(tokens)
 
@@ -65,9 +65,10 @@ function main() {
   console.log(output)
   // console.log('no')
 
-  let p = new ASTPrinter()
+  // let p = new ASTPrinter()
+  // p.print(output)
+  let p = new Printer()
   p.print(output)
-
   
 }
 main()

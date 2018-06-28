@@ -1,7 +1,6 @@
 import * as Jison from "jison"
 import JisonLex = require("jison-lex")
 import * as ast from './ast'
-import { ASTStatements } from "./ast";
 let Parser = Jison.Parser
 
 export class Possum {

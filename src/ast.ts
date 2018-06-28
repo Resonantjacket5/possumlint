@@ -9,17 +9,15 @@ interface Node {
 
 class ASTNode {
   // symbol is type of terminal
-  symbol: string
   line: number
   column: number
-  constructor(symbol:string, yylloc:yylloc) {
-    this.symbol = symbol
+  constructor(public symbol:string, yylloc:yylloc) {
     this.line = yylloc.first_line
     this.column = yylloc.first_column
   }
 
   toString():string {
-    return `<${this.symbol}> line:${this.line} col:${this.column}`
+    return `<${this.symbol}> Ln:${this.line} Col:${this.column}`
   }
 
   children():Array<ASTNode> {
@@ -28,9 +26,13 @@ class ASTNode {
   }
 }
 
-// Trial 2 nodes
+class NonTerminal extends ASTNode {
+  constructor(symbol:string, yylloc:yylloc) {
+    super(symbol, yylloc)
+  }
+}
 
-export class MemExp extends ASTNode {
+export class MemExp extends NonTerminal {
   constructor(
     yylloc:yylloc, 
     public obj:any, 
@@ -49,12 +51,13 @@ export class MemExp extends ASTNode {
 // 2) clock('one') w/ args
 // 3) clock{ show() } w/ body 
 // 4) clock('weird') { really? } both args and body
-export class CallExp extends ASTNode {
+export class CallExp extends NonTerminal {
   constructor(
     yylloc:yylloc, 
     public callee:number, 
     public args:Array<any> = [],
-    public body?:Block
+    // use empty array to allow children to concat
+    public body:Block | Array<any> = []
   ) {
     super('CallExp', yylloc)
   }
@@ -67,28 +70,30 @@ export class CallExp extends ASTNode {
   }
 }
 
-export class AssignExp extends ASTNode {
+export class AssignExp extends NonTerminal {
   operator = '='
   constructor(yylloc:yylloc, public left:any, public right:any) {
     super('AssignExp', yylloc)
   }
 }
 
-export class Stmt extends ASTNode {
+export class Stmt extends NonTerminal {
   constructor(yylloc:yylloc, public exp:any) {
     super('Stmt', yylloc)
   }
+  children():Array<ASTNode> { return [this.exp] }
 }
 
-export class Block extends ASTNode {
+export class Block extends NonTerminal {
   constructor(yylloc:yylloc, public body:Array<Stmt>) {
     super('Block', yylloc)
   }
+  children():Array<ASTNode> { return this.body }
 }
 
 
 // Abstract Syntax Tree Literals (or Terminals)
-class ASTLiteral extends ASTNode {
+class Terminal extends ASTNode {
   text: string
   constructor(symbol:string, yylloc:yylloc, yytext:string) {
     super(symbol, yylloc)
@@ -96,23 +101,28 @@ class ASTLiteral extends ASTNode {
   }
 
   toString():string {
-    return `<${this.symbol}> ${this.text} line:${this.line} col:${this.column}`
+    return `<${this.symbol}> ${this.text} Ln:${this.line} Col:${this.column}`
+  }
+
+  children():Array<any> {
+    throw new Error('Method should not be called on Terminal')
+    return []
   }
 }
 
-export class ASTNumber extends ASTLiteral {
+export class Number extends Terminal {
   constructor(yylloc:any, yytext:string) {
     super('NUM', yylloc, yytext)
   }
 }
 
-export class ASTString extends ASTLiteral {
+export class String extends Terminal {
   constructor(yylloc:any, yytext:string) {
     super('STRING', yylloc, yytext)
   }
 }
 
-export class ASTID extends ASTLiteral {
+export class ID extends Terminal {
   constructor(yylloc:any, yytext:string) {
     super('ID', yylloc, yytext)
   }
@@ -140,22 +150,37 @@ export class ASTID extends ASTLiteral {
 //   }
 // }
 
-class ASTManager {
-  // holds current root stmt to watch
-  stmts:Array<ASTStatements> = []
-  constructor(yy:any) {
-    // setup ast to access ast manager
-    yy.m = this
+export class Printer {
+  constructor(
+    private stream:boolean = false
+  ) {}
+
+  print(node:any) {
+    this.printNode("", true, node)
   }
 
-  // Add one 'statements'
-  addStmts(node:ASTStatements) {
-    this.stmts.push(node)
-    return node
+  printNode(prefix:string, isTail:boolean, node:any) {
+
+    console.log(`${prefix}${(isTail ? "└── " : "├── ")}${node.toString()}`)
+    if (node instanceof NonTerminal) {
+      let children = node.children()
+      let lastChild = children.pop()
+      for (let child of node.children()) {
+        // this guard shouldn't exist
+        if (! (child instanceof ASTNode)) {
+          throw new Error(`child ${child} not instance of ASTNode`)
+        }
+        if (child != null) {
+          this.printNode(prefix + (isTail ? "    " : "│   "), false, child)
+        }
+      }
+      this.printNode(`${prefix}${(isTail ? "    " : "│   ")}`,true,lastChild)
+    } else if (node instanceof Terminal) {
+      return
+    } else {
+      throw new Error('unknown node type found')
+    }
   }
-
-  
-
 }
 
 
