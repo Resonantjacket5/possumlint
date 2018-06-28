@@ -12,9 +12,6 @@ class ASTNode {
   symbol: string
   line: number
   column: number
-  // children: {
-  //   [symbol:string]: Node
-  // } | {} = {}
   constructor(symbol:string, yylloc:yylloc) {
     this.symbol = symbol
     this.line = yylloc.first_line
@@ -24,13 +21,26 @@ class ASTNode {
   toString():string {
     return `<${this.symbol}> line:${this.line} col:${this.column}`
   }
+
+  children():Array<ASTNode> {
+    throw new Error('Method not implemented')
+    return null
+  }
 }
 
 // Trial 2 nodes
 
 export class MemExp extends ASTNode {
-  constructor(yylloc:yylloc, public obj:any, public prop:any) {
+  constructor(
+    yylloc:yylloc, 
+    public obj:any, 
+    public prop:any
+  ) {
     super('MemExp', yylloc)
+  }
+
+  children():Array<ASTNode> {
+    return [this.obj, this.prop]
   }
 }
 
@@ -42,14 +52,19 @@ export class MemExp extends ASTNode {
 export class CallExp extends ASTNode {
   constructor(
     yylloc:yylloc, 
-    public callee:any, 
+    public callee:number, 
     public args:Array<any> = [],
     public body?:Block
   ) {
     super('CallExp', yylloc)
-
   }
-
+  
+  children():Array<ASTNode> {
+    return []
+    .concat(this.callee)
+    .concat(this.args)
+    .concat(this.body)
+  }
 }
 
 export class AssignExp extends ASTNode {
@@ -103,64 +118,6 @@ export class ASTID extends ASTLiteral {
   }
 }
 
-// Abstract Syntax tree 
-export class ASTBranch extends ASTNode {
-  // initialize children
-  children = {}
-  constructor(symbol:string, yylloc:any) {
-    super(symbol, yylloc)
-  }
-}
-
-export class ASTExp extends ASTBranch {
-  // children:{
-  //   'EXP': any
-  // }
-  exp:any
-  constructor(yylloc:any, node:any) {
-    super('EXP',yylloc)
-    // this.children.EXP = node
-    this.exp = node
-  }
-}
-
-export class ASTAssignExp extends ASTBranch {
-  left:any
-  right:any
-
-  constructor(yylloc:any, left:any, right:any) {
-    super('ASSIGN_EXP',yylloc)
-  }
-}
-
-export class ASTFuncExp extends ASTNode {
-  children: {
-    caller: ASTExp,
-    paramNode: any
-  }
-  constructor(yylloc:any, callerNode:any, paramNode:any) {
-    super('FUNC_EXP', yylloc)
-    if (paramNode !== undefined) {
-      this.children.paramNode = paramNode
-    }
-  }
-}
-
-export class ASTClosureExp extends ASTBranch {
-  children: {
-    caller: any
-    params: Array<any>
-    stmts: ASTStatements
-  }
-  constructor(yylloc:any, caller:any, stmts:ASTStatements, params:any) {
-    super('CLOS_EXP', yylloc)
-    this.children.caller = caller
-    this.children.stmts = stmts
-    if (params !== undefined) {
-      this.children.params = params
-    }
-  }
-}
 
 // export class ASTClosureExp2 extends ASTBranch {
 //   callee: any
@@ -175,33 +132,6 @@ export class ASTClosureExp extends ASTBranch {
 //     }
 //   }
 // }
-
-export class ASTStatement extends ASTBranch {
-  children: {
-    EXP: ASTExp
-  } = { EXP: null }
-  constructor(yyloc:any, exp:ASTExp) {
-    super('STATEMENT', yyloc)
-    this.children.EXP = exp
-  }
-}
-
-// holds either both statements and statement
-//              OR just statement
-export class ASTStatements extends ASTBranch {
-  children: {
-    stmt: ASTStatement
-    stmts: ASTStatements
-  }
-  constructor(yyloc:any, statement:ASTStatement, statements:ASTStatements) {
-    super('STATEMENTS',yyloc)
-    this.children.stmt = statement
-    if (statements !== undefined) {
-      this.children.stmts = statements
-    }
-  }
-}
-
 // export class ASTStatements2 extends ASTBranch {
 //   // TODO: better word
 //   stmtList: Array<ASTStatement>
