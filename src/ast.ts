@@ -1,65 +1,97 @@
 import { yylloc } from "jison";
 
-interface Node {
-  // contains either more children or empty dictionary
-  children: {
-    [symbol:string]: Node
-  } | {}
-}
-
-class ASTNode {
+class Node {
   // symbol is type of terminal
-  symbol: string
   line: number
   column: number
-  children: {
-    [symbol:string]: Node
-  } | {} = {}
-  constructor(symbol:string, yylloc:yylloc) {
-    this.symbol = symbol
+  constructor(public symbol:string, yylloc:yylloc) {
     this.line = yylloc.first_line
     this.column = yylloc.first_column
   }
 
   toString():string {
-    return `<${this.symbol}> line:${this.line} col:${this.column}`
+    return `<${this.symbol}> Ln:${this.line} Col:${this.column}`
+  }
+
+  children():Array<Node> {
+    throw new Error(`Method not implemented ${this}`)
+    return null
   }
 }
 
-// Trial 2 nodes
-
-export class MemExp extends ASTNode {
-  constructor(yylloc:yylloc, public obj:any, public prop:any) {
-    super('MemExp', yylloc)
+class NonTerminal extends Node {
+  constructor(symbol:string, yylloc:yylloc) {
+    super(symbol, yylloc)
   }
 }
 
-export class CallExp extends ASTNode {
+export class MemExp extends NonTerminal {
   constructor(
     yylloc:yylloc, 
-    public callee:any, 
-    public args:Array<any>,
-    public body:Block
+    public obj:any, 
+    public prop:any
+  ) {
+    super('MemExp', yylloc)
+  }
+
+  children():Array<Node> {
+    return [this.obj, this.prop]
+  }
+}
+
+// There are 4 types of CallExp
+// 1) clock() no args
+// 2) clock('one') w/ args
+// 3) clock{ show() } w/ body 
+// 4) clock('weird') { really? } both args and body
+export class CallExp extends NonTerminal {
+  constructor(
+    yylloc:yylloc, 
+    public callee:number, 
+    public args:Array<any> = [],
+    // use empty array to allow children to concat
+    public body:Block | Array<any> = []
   ) {
     super('CallExp', yylloc)
   }
+  
+  children():Array<Node> {
+    return []
+    .concat(this.callee)
+    .concat(this.args)
+    .concat(this.body)
+  }
 }
 
-export class Stmt extends ASTNode {
+export class AssignExp extends NonTerminal {
+  operator = '='
+  constructor(
+    yylloc:yylloc, 
+    public left:any, 
+    public right:any
+  ) {
+    super('AssignExp', yylloc)
+  }
+  children():Array<Node> { return [this.left, this.right] }
+}
+
+export class Stmt extends NonTerminal {
   constructor(yylloc:yylloc, public exp:any) {
     super('Stmt', yylloc)
   }
+  children():Array<Node> { return [this.exp] }
 }
 
-export class Block extends ASTNode {
-  constructor(yylloc:yylloc, public args:Array<Stmt>) {
+export class Block extends NonTerminal {
+  constructor(yylloc:yylloc, public body:Array<Stmt>) {
     super('Block', yylloc)
   }
+  children():Array<Node> { return this.body }
 }
 
 
 // Abstract Syntax Tree Literals (or Terminals)
-class ASTLiteral extends ASTNode {
+class Terminal extends Node {
   text: string
   constructor(symbol:string, yylloc:yylloc, yytext:string) {
     super(symbol, yylloc)
@@ -67,151 +99,69 @@ class ASTLiteral extends ASTNode {
   }
 
   toString():string {
-    return `<${this.symbol}> ${this.text} line:${this.line} col:${this.column}`
+    return `<${this.symbol}> ${this.text} Ln:${this.line} Col:${this.column}`
+  }
+
+  children():Array<any> {
+    throw new Error('Method should not be called on Terminal')
+    return []
   }
 }
 
-export class ASTNumber extends ASTLiteral {
+export class Number extends Terminal {
   constructor(yylloc:any, yytext:string) {
     super('NUM', yylloc, yytext)
   }
 }
 
-export class ASTString extends ASTLiteral {
+export class String extends Terminal {
   constructor(yylloc:any, yytext:string) {
     super('STRING', yylloc, yytext)
   }
 }
 
-export class ASTID extends ASTLiteral {
+export class ID extends Terminal {
   constructor(yylloc:any, yytext:string) {
     super('ID', yylloc, yytext)
   }
 }
 
-// Abstract Syntax tree 
-export class ASTBranch extends ASTNode {
-  // initialize children
-  children = {}
-  constructor(symbol:string, yylloc:any) {
-    super(symbol, yylloc)
-  }
-}
+export class Printer {
+  constructor(
+    private stream:boolean = false
+  ) {}
 
-export class ASTExp extends ASTBranch {
-  // children:{
-  //   'EXP': any
-  // }
-  exp:any
-  constructor(yylloc:any, node:any) {
-    super('EXP',yylloc)
-    // this.children.EXP = node
-    this.exp = node
+  print(node:any) {
+    this.printNode("", true, node)
   }
-}
 
-export class ASTAssignExp extends ASTBranch {
-  left:any
-  right:any
-
-  constructor(yylloc:any, left:any, right:any) {
-    super('ASSIGN_EXP',yylloc)
-  }
-}
-
-export class ASTFuncExp extends ASTNode {
-  children: {
-    caller: ASTExp,
-    paramNode: any
-  }
-  constructor(yylloc:any, callerNode:any, paramNode:any) {
-    super('FUNC_EXP', yylloc)
-    if (paramNode !== undefined) {
-      this.children.paramNode = paramNode
+  printNode(prefix:string, isTail:boolean, node:Node) {
+    console.log(`${prefix}${(isTail ? "└── " : "├── ")}${node.toString()}`)
+    if (node instanceof NonTerminal) {
+      let children = node.children()
+      let lastChild = children.pop()
+      // if (node instanceof Stmt) {
+      //   console.log('children',children)
+      //   console.log('last child',lastChild) 
+      // }
+      
+      for (let child of children) {
+        // this guard shouldn't exist
+        if (! (child instanceof Node)) {
+          throw new Error(`child ${child} not instance of Node`)
+        }
+        if (child != null) {
+          this.printNode(prefix + (isTail ? "    " : "│   "), false, child)
+        }
+      }
+      this.printNode(`${prefix}${(isTail ? "    " : "│   ")}`,true,lastChild)
+    } else if (node instanceof Terminal) {
+      return
+    } else {
+      console.log(node)
+      throw new Error(`unknown node type found ${node}`)
     }
   }
-}
-
-export class ASTClosureExp extends ASTBranch {
-  children: {
-    caller: any
-    params: Array<any>
-    stmts: ASTStatements
-  }
-  constructor(yylloc:any, caller:any, stmts:ASTStatements, params:any) {
-    super('CLOS_EXP', yylloc)
-    this.children.caller = caller
-    this.children.stmts = stmts
-    if (params !== undefined) {
-      this.children.params = params
-    }
-  }
-}
-
-// export class ASTClosureExp2 extends ASTBranch {
-//   callee: any
-//   params: Array<any>
-//   stmts: ASTStatements
-//   constructor(yylloc:any, caller:any, stmts:ASTStatements, params:any) {
-//     super('CLOS_EXP', yylloc)
-//     this.callee = caller
-//     this.children.stmts = stmts
-//     if (params !== undefined) {
-//       this.children.params = params
-//     }
-//   }
-// }
-
-export class ASTStatement extends ASTBranch {
-  children: {
-    EXP: ASTExp
-  } = { EXP: null }
-  constructor(yyloc:any, exp:ASTExp) {
-    super('STATEMENT', yyloc)
-    this.children.EXP = exp
-  }
-}
-
-// holds either both statements and statement
-//              OR just statement
-export class ASTStatements extends ASTBranch {
-  children: {
-    stmt: ASTStatement
-    stmts: ASTStatements
-  }
-  constructor(yyloc:any, statement:ASTStatement, statements:ASTStatements) {
-    super('STATEMENTS',yyloc)
-    this.children.stmt = statement
-    if (statements !== undefined) {
-      this.children.stmts = statements
-    }
-  }
-}
-
-// export class ASTStatements2 extends ASTBranch {
-//   // TODO: better word
-//   stmtList: Array<ASTStatement>
-//   constructor(yyloc:any, statement:ASTStatement, statements:ASTStatements) {
-//     super('STATEMENTS',yyloc)
-//   }
-// }
-
-class ASTManager {
-  // holds current root stmt to watch
-  stmts:Array<ASTStatements> = []
-  constructor(yy:any) {
-    // setup ast to access ast manager
-    yy.m = this
-  }
-
-  // Add one 'statements'
-  addStmts(node:ASTStatements) {
-    this.stmts.push(node)
-    return node
-  }
-
-  
-
 }
 
 

@@ -1,13 +1,12 @@
 import * as Jison from "jison"
 import { Possum } from './possum'
-import { ASTPrinter } from "./ast";
+import { ASTPrinter, Printer } from "./ast";
 import { lex } from "./lex";
 let grammar:Jison.grammar = {
   "lex" :lex,
   "bnf": {
-    "ROOT" :[ 
+    "ROOT" :[
       ["STATEMENTS EOF"," return new yy.Block(@1,$1)"],
-     //["STATEMENTS ; EOF"," return $1"],
     ],
     // Returns Array<STATEMENT>
     // with STATEMENT as base rule
@@ -15,39 +14,25 @@ let grammar:Jison.grammar = {
     "STATEMENTS": [
       ["STATEMENTS STATEMENT ;","$$ = $1; $1.push($2)"],
       ["STATEMENT ;","$$ = [$1]"],
-      // new yy.ASTStatements(@1,$2,$1)
-      // new yy.ASTStatements(@1,$1)
     ],
-    // Currently Statement just consist of expression
     "STATEMENT": [
       ["EXP","$$ = new yy.Stmt(@1,$1)"],
     ],
     "EXP": [
-      ["ASSIGN_EXP","$$ = new yy.ASTExp(@1, $1)"],
-      ["FUNC_EXP","$$ = new yy.ASTExp(@1, $1)"],
+      ["ASSIGN_EXP","$$ = $1"],
+      ["FUNC_EXP","$$ = $1"],
       "MEMBER",
       "LITERAL",
-      // ["NUM"," $$ = new yy.ASTNumber(@1, yytext)"],
-      // "STRING",
     ],
-    // "CALLER":[
-    //   "ID"
-    // ],
-    // "MEMBER":[
-    //   "ID"
-    // ],constructor(yylloc, callerNode, argNode)
     "ASSIGN_EXP": [
-      //["ID = EXP", "$$ = new yy.ASTAssignExp(@1, $1, $3)"],
-      "MEMBER = EXP",
+      ["MEMBER = EXP","$$ = new yy.AssignExp(@1, $1, $3)"],
     ],
     "FUNC_EXP": [ 
-      // not sure if groovy closure ones should be separate or not
-      ["MEMBER ( ARGS ) { STATEMENTS }","$$ = new yy.ASTFuncExp(@1, $1, $3)"],
-      ["MEMBER { STATEMENTS }","$$ = new yy.ASTFuncExp(@1, $1, $3)"],
-      //["ID ( EXP )","$$ = new yy.ASTFuncExp(@1,$1,$3)"],
-      ["MEMBER ( ARGS )","$$ = new yy.ASTFuncExp(@1, $1, $3)"],
-      ["MEMBER ARGS","$$ = new yy.ASTFuncExp(@1, $1, $2)"],
-      ["MEMBER ( )","$$ = new yy.ASTFuncExp(@1, $1)"],
+      ["MEMBER ( ARGS ) { STATEMENTS }","$$ = new yy.CallExp(@1, $1, $3, $6)"],
+      ["MEMBER { STATEMENTS }","$$ = new yy.CallExp(@1, $1, undefined, $3)"],
+      ["MEMBER ( ARGS )","$$ = new yy.CallExp(@1, $1, $3)"],
+      ["MEMBER EXP","$$ = new yy.CallExp(@1, [$1], $2)"],
+      ["MEMBER ( )","$$ = new yy.CallExp(@1, $1)"],
     ],
     // Returns Array<EXP> value
     // with EXP as the base rule repeatedly matched 
@@ -58,40 +43,32 @@ let grammar:Jison.grammar = {
     ],
     // ex: [ID] . ID . ID => [MEMBER . ID] . ID => [MEMBER] ID
     "MEMBER":[
-      ["MEMBER . ID ", "$$ = new yy.MemExp(@1, $1, $3)"],
+      ["MEMBER . ID ", "$$ = new yy.MemExp(@1, $1, new yy.ID(@3,$3))"],
       "MEMBER [ ID ]",
-      ["ID", "$$ = new yy.MemExp(@1, $1) "]
+      ["ID", "$$ = new yy.ID(@1, $1) "]
     ],
     "LITERAL":[
-      ["NUM","$$ = new yy.ASTNumber(@1, yytext)"],
-      ["STRING","$$ = new yy.ASTString(@1, yytext)"]
+      ["NUM","$$ = new yy.Number(@1, yytext)"],
+      ["STRING","$$ = new yy.String(@1, yytext)"]
     ]
-    //   "STRING",
-    // ]
-    // "ID":[
-    //   "ID"
-    // ]
-    // https://tc39.github.io/ecma262/#sec-property-accessors
-    // "ID":[ 
-    //   "ID . ID"
-    // ]
   }
 }
 
 export const possum = new Possum(grammar)
 
-function main() {
-  let jenkinsFile = "one.two.three.four \n "
-  let tokens = possum.tokenize(jenkinsFile)
-  console.log(tokens)
+// function main() {
+//   let jenkinsFile = "one( 5); two(7) \n "
+//   let tokens = possum.tokenize(jenkinsFile)
+//   console.log(tokens)
 
-  let output = possum.parse(jenkinsFile)
-  console.log(output)
-  // console.log('no')
+//   let output = possum.parse(jenkinsFile)
+//   console.log(output)
+//   // console.log('no')
 
-  let p = new ASTPrinter()
-  p.print(output)
-
+//   // let p = new ASTPrinter()
+//   // p.print(output)
+//   let p = new Printer()
+//   p.print(output)
   
-}
-main()
+// }
+// main()
