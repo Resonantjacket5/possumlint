@@ -29,7 +29,7 @@ let grammar:Jison.grammar = {
       ["MEMBER = EXP","$$ = new yy.AssignExp(@1, $1, $3)"],
     ],
     "FUNC_EXP": [ 
-      ["MEMBER ( ARGS ) { STATEMENTS }","$$ = new yy.CallExp(@1, $1, $3,$5)"],
+      ["MEMBER ( ARGS ) { STATEMENTS }","$$ = new yy.CallExp(@1, $1, $3, $5)"],
       ["MEMBER { STATEMENTS }","$$ = new yy.CallExp(@1, $1, undefined, $3)"],
       ["MEMBER ( ARGS )","$$ = new yy.CallExp(@1, $1, $3)"],
       ["MEMBER ARGS","$$ = new yy.CallExp(@1, $1, $2)"],
