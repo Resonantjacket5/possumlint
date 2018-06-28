@@ -28,10 +28,10 @@ let grammar:Jison.grammar = {
       ["MEMBER = EXP","$$ = new yy.AssignExp(@1, $1, $3)"],
     ],
     "FUNC_EXP": [ 
-      ["MEMBER ( ARGS ) { STATEMENTS }","$$ = new yy.CallExp(@1, $1, $3, $5)"],
+      ["MEMBER ( ARGS ) { STATEMENTS }","$$ = new yy.CallExp(@1, $1, $3, $6)"],
       ["MEMBER { STATEMENTS }","$$ = new yy.CallExp(@1, $1, undefined, $3)"],
       ["MEMBER ( ARGS )","$$ = new yy.CallExp(@1, $1, $3)"],
-      ["MEMBER ARGS","$$ = new yy.CallExp(@1, $1, $2)"],
+      ["MEMBER EXP","$$ = new yy.CallExp(@1, [$1], $2)"],
       ["MEMBER ( )","$$ = new yy.CallExp(@1, $1)"],
     ],
     // Returns Array<EXP> value
@@ -56,19 +56,19 @@ let grammar:Jison.grammar = {
 
 export const possum = new Possum(grammar)
 
-function main() {
-  let jenkinsFile = "one( 5); two(7) \n "
-  let tokens = possum.tokenize(jenkinsFile)
-  console.log(tokens)
+// function main() {
+//   let jenkinsFile = "one( 5); two(7) \n "
+//   let tokens = possum.tokenize(jenkinsFile)
+//   console.log(tokens)
 
-  let output = possum.parse(jenkinsFile)
-  console.log(output)
-  // console.log('no')
+//   let output = possum.parse(jenkinsFile)
+//   console.log(output)
+//   // console.log('no')
 
-  // let p = new ASTPrinter()
-  // p.print(output)
-  let p = new Printer()
-  p.print(output)
+//   // let p = new ASTPrinter()
+//   // p.print(output)
+//   let p = new Printer()
+//   p.print(output)
   
-}
-main()
+// }
+// main()

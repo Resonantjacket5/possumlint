@@ -1,13 +1,6 @@
 import { yylloc } from "jison";
 
-interface Node {
-  // contains either more children or empty dictionary
-  children: {
-    [symbol:string]: Node
-  } | {}
-}
-
-class ASTNode {
+class Node {
   // symbol is type of terminal
   line: number
   column: number
@@ -20,13 +13,13 @@ class ASTNode {
     return `<${this.symbol}> Ln:${this.line} Col:${this.column}`
   }
 
-  children():Array<ASTNode> {
-    throw new Error('Method not implemented')
+  children():Array<Node> {
+    throw new Error(`Method not implemented ${this}`)
     return null
   }
 }
 
-class NonTerminal extends ASTNode {
+class NonTerminal extends Node {
   constructor(symbol:string, yylloc:yylloc) {
     super(symbol, yylloc)
   }
@@ -41,7 +34,7 @@ export class MemExp extends NonTerminal {
     super('MemExp', yylloc)
   }
 
-  children():Array<ASTNode> {
+  children():Array<Node> {
     return [this.obj, this.prop]
   }
 }
@@ -62,7 +55,7 @@ export class CallExp extends NonTerminal {
     super('CallExp', yylloc)
   }
   
-  children():Array<ASTNode> {
+  children():Array<Node> {
     return []
     .concat(this.callee)
     .concat(this.args)
@@ -72,28 +65,33 @@ export class CallExp extends NonTerminal {
 
 export class AssignExp extends NonTerminal {
   operator = '='
-  constructor(yylloc:yylloc, public left:any, public right:any) {
+  constructor(
+    yylloc:yylloc, 
+    public left:any, 
+    public right:any
+  ) {
     super('AssignExp', yylloc)
   }
+  children():Array<Node> { return [this.left, this.right] }
 }
 
 export class Stmt extends NonTerminal {
   constructor(yylloc:yylloc, public exp:any) {
     super('Stmt', yylloc)
   }
-  children():Array<ASTNode> { return [this.exp] }
+  children():Array<Node> { return [this.exp] }
 }
 
 export class Block extends NonTerminal {
   constructor(yylloc:yylloc, public body:Array<Stmt>) {
     super('Block', yylloc)
   }
-  children():Array<ASTNode> { return this.body }
+  children():Array<Node> { return this.body }
 }
 
 
 // Abstract Syntax Tree Literals (or Terminals)
-class Terminal extends ASTNode {
+class Terminal extends Node {
   text: string
   constructor(symbol:string, yylloc:yylloc, yytext:string) {
     super(symbol, yylloc)
@@ -128,28 +126,6 @@ export class ID extends Terminal {
   }
 }
 
-
-// export class ASTClosureExp2 extends ASTBranch {
-//   callee: any
-//   params: Array<any>
-//   stmts: ASTStatements
-//   constructor(yylloc:any, caller:any, stmts:ASTStatements, params:any) {
-//     super('CLOS_EXP', yylloc)
-//     this.callee = caller
-//     this.children.stmts = stmts
-//     if (params !== undefined) {
-//       this.children.params = params
-//     }
-//   }
-// }
-// export class ASTStatements2 extends ASTBranch {
-//   // TODO: better word
-//   stmtList: Array<ASTStatement>
-//   constructor(yyloc:any, statement:ASTStatement, statements:ASTStatements) {
-//     super('STATEMENTS',yyloc)
-//   }
-// }
-
 export class Printer {
   constructor(
     private stream:boolean = false
@@ -159,16 +135,20 @@ export class Printer {
     this.printNode("", true, node)
   }
 
-  printNode(prefix:string, isTail:boolean, node:any) {
-
+  printNode(prefix:string, isTail:boolean, node:Node) {
     console.log(`${prefix}${(isTail ? "└── " : "├── ")}${node.toString()}`)
     if (node instanceof NonTerminal) {
       let children = node.children()
       let lastChild = children.pop()
-      for (let child of node.children()) {
+      // if (node instanceof Stmt) {
+      //   console.log('children',children)
+      //   console.log('last child',lastChild) 
+      // }
+      
+      for (let child of children) {
         // this guard shouldn't exist
-        if (! (child instanceof ASTNode)) {
-          throw new Error(`child ${child} not instance of ASTNode`)
+        if (! (child instanceof Node)) {
+          throw new Error(`child ${child} not instance of Node`)
         }
         if (child != null) {
           this.printNode(prefix + (isTail ? "    " : "│   "), false, child)
@@ -178,7 +158,8 @@ export class Printer {
     } else if (node instanceof Terminal) {
       return
     } else {
-      throw new Error('unknown node type found')
+      console.log(node)
+      throw new Error(`unknown node type found ${node}`)
     }
   }
 }
