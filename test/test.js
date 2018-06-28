@@ -26,8 +26,9 @@ var files = [
   'test/simple3b',
   'test/simple3c',
   'test/property-access',
+  // 'test/multiline-comment',
+  // 'test/final'
 ]
-
 
 for (file of files) {
   let sourceFile = fs.readFileSync(file,'utf8');

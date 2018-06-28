@@ -1,6 +1,7 @@
 import { yylloc } from "jison";
 
-class Node {
+// name Node already taken by javascript
+export class Lode {
   // symbol is type of terminal
   line: number
   column: number
@@ -13,13 +14,13 @@ class Node {
     return `<${this.symbol}> Ln:${this.line} Col:${this.column}`
   }
 
-  children():Array<Node> {
+  children():Array<Lode> {
     throw new Error(`Method not implemented ${this}`)
     return null
   }
 }
 
-class NonTerminal extends Node {
+class NonTerminal extends Lode {
   constructor(symbol:string, yylloc:yylloc) {
     super(symbol, yylloc)
   }
@@ -34,7 +35,7 @@ export class MemExp extends NonTerminal {
     super('MemExp', yylloc)
   }
 
-  children():Array<Node> {
+  children():Array<Lode> {
     return [this.obj, this.prop]
   }
 }
@@ -55,7 +56,7 @@ export class CallExp extends NonTerminal {
     super('CallExp', yylloc)
   }
   
-  children():Array<Node> {
+  children():Array<Lode> {
     return []
     .concat(this.callee)
     .concat(this.args)
@@ -72,26 +73,26 @@ export class AssignExp extends NonTerminal {
   ) {
     super('AssignExp', yylloc)
   }
-  children():Array<Node> { return [this.left, this.right] }
+  children():Array<Lode> { return [this.left, this.right] }
 }
 
 export class Stmt extends NonTerminal {
   constructor(yylloc:yylloc, public exp:any) {
     super('Stmt', yylloc)
   }
-  children():Array<Node> { return [this.exp] }
+  children():Array<Lode> { return [this.exp] }
 }
 
 export class Block extends NonTerminal {
   constructor(yylloc:yylloc, public body:Array<Stmt>) {
     super('Block', yylloc)
   }
-  children():Array<Node> { return this.body }
+  children():Array<Lode> { return this.body }
 }
 
 
 // Abstract Syntax Tree Literals (or Terminals)
-class Terminal extends Node {
+class Terminal extends Lode {
   text: string
   constructor(symbol:string, yylloc:yylloc, yytext:string) {
     super(symbol, yylloc)
@@ -132,10 +133,10 @@ export class Printer {
   ) {}
 
   print(node:any) {
-    this.printNode("", true, node)
+    this.printLode("", true, node)
   }
 
-  printNode(prefix:string, isTail:boolean, node:Node) {
+  printLode(prefix:string, isTail:boolean, node:Lode) {
     console.log(`${prefix}${(isTail ? "└── " : "├── ")}${node.toString()}`)
     if (node instanceof NonTerminal) {
       let children = node.children()
@@ -147,14 +148,14 @@ export class Printer {
       
       for (let child of children) {
         // this guard shouldn't exist
-        if (! (child instanceof Node)) {
-          throw new Error(`child ${child} not instance of Node`)
+        if (! (child instanceof Lode)) {
+          throw new Error(`child ${child} not instance of Lode`)
         }
         if (child != null) {
-          this.printNode(prefix + (isTail ? "    " : "│   "), false, child)
+          this.printLode(prefix + (isTail ? "    " : "│   "), false, child)
         }
       }
-      this.printNode(`${prefix}${(isTail ? "    " : "│   ")}`,true,lastChild)
+      this.printLode(`${prefix}${(isTail ? "    " : "│   ")}`,true,lastChild)
     } else if (node instanceof Terminal) {
       return
     } else {
@@ -162,4 +163,13 @@ export class Printer {
       throw new Error(`unknown node type found ${node}`)
     }
   }
+}
+
+enum Symbol {
+  MemExp,
+  CallExp
+}
+
+export function stringToLode (symbolText:string) {
+
 }

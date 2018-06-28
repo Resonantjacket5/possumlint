@@ -22,6 +22,7 @@ export const lex = {
     [['INITIAL'],"/\\*","this.pushState('MULTI_COMMENT')"],
     [['MULTI_COMMENT'],"[^*\\n]","// eat comment in chunks"],
     [['MULTI_COMMENT'],"\\n","// eat line"],
+    // [['MULTI_COMMENT'],"\\*","// eat star"],
     [['MULTI_COMMENT'],"\\*/","this.popState()"],
 
 
