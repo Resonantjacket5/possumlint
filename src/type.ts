@@ -1,16 +1,16 @@
 import * as ast from './ast'
 
-type rule = {
-  [symbol:string]:{
+// type rule = {
+//   [symbol:string]:{
 
-  }
-}
+//   }
+// }
 
 class TypeChecker {
 
   constructor(
     private rootNode:ast.Lode,
-    private rules:Array<rule>
+    //private rules:Array<rule>,
   ) {
 
   }

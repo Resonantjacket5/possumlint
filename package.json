@@ -2,7 +2,7 @@
   "name": "possumlint",
   "version": "0.0.4",
   "description": "",
-  "main": "parse.js",
+  "main": "built/parse.js",
   "dependencies": {
     "@types/node": "^10.3.5",
     "jison": "^0.4.18",
