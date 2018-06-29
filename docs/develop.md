@@ -16,12 +16,20 @@ Compile on save:
 
 # Useful articles
 
-https://medium.com/@chris_72272/migrating-to-typescript-write-a-declaration-file-for-a-third-party-npm-module-b1f75808ed2
+// Jenkinsfile info 
 
+declarative jenkinsfile
+https://jenkins.io/doc/book/pipeline/syntax/
+
+
+// Flex / Bison
 
 http://zaa.ch/jison/docs/#usage-from-the-command-line
 https://stackoverflow.com/questions/28638304/jison-grammar-definition-leads-to-wrong-token-recognition
 https://hacks.mozilla.org/2013/05/compiling-to-javascript-and-debugging-with-source-maps/
+
+example of ast
+https://astexplorer.net
 
 http://docs.groovy-lang.org/next/html/documentation/core-syntax.html#_characters
 
@@ -34,24 +42,27 @@ https://tc39.github.io/ecma262/
 javascript functions
 https://github.com/estree/estree/blob/master/es5.md
 
-// readme information on how to create a typescript library for later
-https://www.tsmean.com/articles/how-to-write-a-typescript-library/
-
-
 // migrating from javascript to typescript
 https://www.typescriptlang.org/docs/handbook/migrating-from-javascript.html
 
-// how to setup node command line
+https://medium.com/@chris_72272/migrating-to-typescript-write-a-declaration-file-for-a-third-party-npm-module-b1f75808ed2
+
+// Node command line
 https://x-team.com/blog/a-guide-to-creating-a-nodejs-command/
+
+// Typescript commandline 
+https://codeburst.io/how-to-build-a-command-line-app-in-node-js-using-typescript-google-cloud-functions-and-firebase-4c13b1699a27
+
+// interop between typescript and javascript npm modules
+https://medium.com/cameron-nokes/the-30-second-guide-to-publishing-a-typescript-package-to-npm-89d93ff7bccd
 
 typescript compile on save
 https://stackoverflow.com/questions/29996145/visual-studio-code-compile-on-save
 
+// readme information on how to create a typescript library for later
+https://www.tsmean.com/articles/how-to-write-a-typescript-library/
+
 circleci how to deploy to npm
 https://circleci.com/blog/publishing-npm-packages-using-circleci-2-0/
 
-declarative jenkinsfile
-https://jenkins.io/doc/book/pipeline/syntax/
 
-example of ast
-https://astexplorer.net
