@@ -48,7 +48,7 @@ export class MemExp extends NonTerminal {
 export class CallExp extends NonTerminal {
   constructor(
     yylloc:yylloc, 
-    public callee:number, 
+    public callee:MemExp | ID, 
     public args:Array<any> = [],
     // use empty array to allow children to concat
     public body:Block | Array<any> = []
