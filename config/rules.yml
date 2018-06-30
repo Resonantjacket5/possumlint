@@ -1,0 +1,34 @@
+# top level
+pipeline:
+  required:
+    - agent
+    - stages # once
+  optional:
+    - parameters
+    - options
+    - triggers
+    - post
+    - environment
+    - tools
+
+
+agent:
+  args:
+    - any
+    - none
+
+stages:
+  required:
+    - stage # duplicates allowed
+
+stage:
+  required:
+    - steps
+  optional:
+    - agent
+    - post
+    - environment
+    - tools
+    - options
+    - when
+

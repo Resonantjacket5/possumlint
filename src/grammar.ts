@@ -1,7 +1,9 @@
 import * as Jison from "jison"
-import { Possum } from './possum'
+// import { Possum } from './possum'
 import { lex } from "./lex";
-let grammar:Jison.grammar = {
+
+
+export let grammar:Jison.grammar = {
   "lex" :lex,
   "bnf": {
     "ROOT" :[
@@ -53,7 +55,7 @@ let grammar:Jison.grammar = {
   }
 }
 
-export const possum = new Possum(grammar)
+// export const possum = new Possum(grammar)
 
 // function main() {
 //   let jenkinsFile = "one( 5); two(7) \n "

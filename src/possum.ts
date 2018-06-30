@@ -1,6 +1,8 @@
 import * as Jison from "jison"
 import JisonLex = require("jison-lex")
 import * as ast from './ast'
+import { grammar } from './grammar'
+
 let Parser = Jison.Parser
 
 export class Possum {
@@ -116,3 +118,5 @@ class TokenMonitor {
     this.symbols.push(rule)
   }
 }
+
+export const possum = new Possum(grammar)

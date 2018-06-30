@@ -5,7 +5,10 @@ export class Lode {
   // symbol is type of terminal
   line: number
   column: number
-  constructor(public symbol:string, yylloc:yylloc) {
+  constructor(
+    public symbol:string, 
+    yylloc:yylloc
+  ) {
     this.line = yylloc.first_line
     this.column = yylloc.first_column
   }
@@ -14,12 +17,14 @@ export class Lode {
     return `<${this.symbol}> Ln:${this.line} Col:${this.column}`
   }
 
+  // Abstract method that returns all children nodes
   children():Array<Lode> {
     throw new Error(`Method not implemented ${this}`)
     return null
   }
 }
 
+// NonTerminal / Internal node
 class NonTerminal extends Lode {
   constructor(symbol:string, yylloc:yylloc) {
     super(symbol, yylloc)
@@ -40,7 +45,7 @@ export class MemExp extends NonTerminal {
   }
 }
 
-// There are 4 types of CallExp
+// Handles the 4 types of CallExp to allow for
 // 1) clock() no args
 // 2) clock('one') w/ args
 // 3) clock{ show() } w/ body 
@@ -49,9 +54,10 @@ export class CallExp extends NonTerminal {
   constructor(
     yylloc:yylloc, 
     public callee:MemExp | ID, 
-    public args:Array<any> = [],
-    // use empty array to allow children to concat
-    public body:Block | Array<any> = []
+    // use empty array to allow children to concat empty array, 
+    // rather than undefined
+    public args:Array<Lode> = [],
+    public stmts:Array<Lode> = []
   ) {
     super('CallExp', yylloc)
   }
@@ -60,7 +66,7 @@ export class CallExp extends NonTerminal {
     return []
     .concat(this.callee)
     .concat(this.args)
-    .concat(this.body)
+    .concat(this.stmts)
   }
 }
 
@@ -127,6 +133,8 @@ export class ID extends Terminal {
   }
 }
 
+// Iterates through all children of nodes 
+// and prints them in tree 
 export class Printer {
   constructor(
     private stream:boolean = false

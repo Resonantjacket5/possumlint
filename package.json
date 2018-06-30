@@ -4,9 +4,11 @@
   "description": "",
   "main": "built/parse.js",
   "dependencies": {
+    "@types/js-yaml": "^3.11.1",
     "@types/node": "^10.3.5",
     "jison": "^0.4.18",
-    "jison-lex": "^0.3.4"
+    "jison-lex": "^0.3.4",
+    "js-yaml": "^3.12.0"
   },
   "devDependencies": {
     "eslint": "^4.19.1",

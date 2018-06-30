@@ -9,7 +9,7 @@ const fs = require("fs");
 // const lexer = require('../built/parse').lexer
 // const monitor = require('../built/parse').monitor
 // const possum = require('../built/parse').possum
-const possum = require('../built/parse').possum
+const possum = require('../built/possum').possum
 const Printer = require('../built/ast').Printer
 
 console.log('Run tests:\n--------------')

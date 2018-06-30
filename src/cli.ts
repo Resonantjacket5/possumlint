@@ -1,7 +1,10 @@
 #!/usr/bin/env node
-import { possum } from './parse'
+import { possum } from './possum'
 import * as fs from 'fs'
 import { Printer } from './ast'
+
+import * as yaml from 'js-yaml'
+
 const [,, ... args] = process.argv
 function main () {
   console.log(args)
@@ -13,8 +16,11 @@ function main () {
   }
   
   let output = possum.parse(text)
-  // console.log(output)
   let p = new Printer()
   p.print(output)
+
+  let doc = yaml.safeLoad(fs.readFileSync('./config/rules.yml', 'utf8'))
+  console.log(doc)
+
 }
 main()
