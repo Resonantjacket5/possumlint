@@ -1,10 +1,17 @@
+// Imports from jison and jison-lex library
 import * as Jison from "jison"
 import JisonLex = require("jison-lex")
+
 import * as ast from './ast'
 import { grammar } from './grammar'
 
 let Parser = Jison.Parser
 
+/*
+  Main class that handles the creation of lexer
+  and setting up the parser as well as injecting the 
+  token monitor
+*/
 export class Possum {
   monitor:TokenMonitor
   grammar:Jison.grammar
@@ -54,7 +61,8 @@ export class Possum {
     return tokens
   }
 
-
+  // Wrapper function for the parser.parse function
+  // that ensures that the monitor is reset
   parse(text:string):any {
     this.monitor.reset()
     return this.parser.parse(text)

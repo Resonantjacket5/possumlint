@@ -1,6 +1,12 @@
 import * as Jison from "jison"
-// import { Possum } from './possum'
 import { lex } from "./lex";
+
+/*
+  grammar.ts holds the grammar for the Jenkinsfile linter
+  imports in lex rules from lex.ts
+
+
+*/
 
 
 export let grammar:Jison.grammar = {
@@ -22,7 +28,7 @@ export let grammar:Jison.grammar = {
     "EXP": [
       ["ASSIGN_EXP","$$ = $1"],
       ["FUNC_EXP","$$ = $1"],
-      "MEMBER",
+      ["MEMBER","$$ = $1"],
       "LITERAL",
     ],
     "ASSIGN_EXP": [

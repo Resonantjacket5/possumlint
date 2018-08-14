@@ -1,4 +1,10 @@
 # top level
+
+# Currently only checks functiosn
+# required means must have elements
+# optional means can have elements
+# multi means duplicates allowed (require at least one)
+
 pipeline:
   required:
     - agent
@@ -18,8 +24,14 @@ agent:
     - none
 
 stages:
-  required:
-    - stage # duplicates allowed
+  multi:
+    - stage
+
+# a bit complicated mhmm
+parallel:
+  multi:
+    - stage
+
 
 stage:
   required:
@@ -32,3 +44,15 @@ stage:
     - options
     - when
 
+# directives
+parameters:
+  multi:
+    - string
+    - booleanParam
+
+triggers:
+  # only one allowed?
+  optional:
+    - cron
+    - pollSCM
+    - upstream

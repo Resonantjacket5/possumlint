@@ -70,6 +70,12 @@ export class CallExp extends NonTerminal {
   }
 }
 
+export interface StrictCallExp {
+  callee:ID
+  args:Array<StrictCallExp|string>
+  stmts:Array<StrictCallExp>
+}
+
 export class AssignExp extends NonTerminal {
   operator = '='
   constructor(

@@ -1,30 +1,21 @@
 import * as ast from './ast'
 import { CallExp } from './ast';
 
-// type rule = {
-//   [symbol:string]:{
+type rules = {
+  [callee:string]:{
 
-//   }
-// }
+  }
+}
 
-class TypeChecker {
+export class TypeChecker {
   //private scope:Array<ast.Lode> = [] 
   constructor(
     private rootNode:ast.Lode,
-    private rules:Array<any>,
+    private rules:rules,
   ) {
-    this.rules = [
-      {
-        "CallExp":{
-          "body":[
-            {
-              
-            }
-          ],
-          "scope":0
-        }
-      }
-    ]
+    this.rules = {
+      
+    }
   }
 
   traverse(node:ast.Lode, scope:Array<ast.Lode>) {
@@ -46,6 +37,34 @@ class TypeChecker {
           }
         }
       }
+    }
+  }
+
+  nodecheck2(node:ast.Lode, scope: Array<ast.Lode>) {
+    // check node is function and id only
+    if (node instanceof ast.CallExp) {
+      if (node.callee instanceof ast.ID) {
+        // if exist in rules, then expect stmts
+        if (node.callee.text in this.rules) {
+          let ids = []
+          for (let stmt of node.stmts) {
+            let callExp:ast.StrictCallExp = this.castPipelineCallExp(stmt)
+            if (callExp != null) {
+              ids.push(callExp.callee.text)
+            }
+          }
+        }
+      }
+    }
+  }
+
+  castPipelineCallExp(node:ast.Lode):ast.StrictCallExp | undefined {
+    if (
+      (node instanceof ast.CallExp) &&
+      (node.callee instanceof ast.ID) 
+    ) {
+      let temp:any = node
+      return temp as ast.StrictCallExp
     }
   }
 
